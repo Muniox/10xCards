@@ -1,7 +1,4 @@
 {
   "enableAllProjectMcpServers": true,
-  "enabledMcpjsonServers": [
-    "chrome-devtools",
-    "gemini-cli"
-  ]
+  "enabledMcpjsonServers": ["chrome-devtools", "gemini-cli"]
 }
