@@ -33,6 +33,7 @@ Creating high-quality flashcards manually is time-consuming and often discourage
 ## Tech Stack
 
 ### Frontend
+
 - **[Astro](https://astro.build/) 5.13.7** - Modern web framework for fast, content-focused applications with minimal JavaScript
 - **[React](https://react.dev/) 19.1.1** - UI library for interactive components
 - **[TypeScript](https://www.typescriptlang.org/) 5** - Type-safe JavaScript for better developer experience
@@ -40,6 +41,7 @@ Creating high-quality flashcards manually is time-consuming and often discourage
 - **[Shadcn/ui](https://ui.shadcn.com/)** - Accessible, customizable component library
 
 ### Backend
+
 - **[Supabase](https://supabase.com/)** - Open-source Backend-as-a-Service providing:
   - PostgreSQL database
   - Built-in authentication
@@ -47,12 +49,14 @@ Creating high-quality flashcards manually is time-consuming and often discourage
   - Self-hosting capabilities
 
 ### AI Integration
+
 - **[Openrouter.ai](https://openrouter.ai/)** - Unified API for multiple LLM providers:
   - Access to OpenAI, Anthropic, Google, and other models
   - Cost optimization through model selection
   - Financial limits and usage controls
 
 ### DevOps & Hosting
+
 - **GitHub Actions** - CI/CD pipelines for automated testing and deployment
 - **DigitalOcean** - Application hosting via Docker containers
 
@@ -68,24 +72,28 @@ Creating high-quality flashcards manually is time-consuming and often discourage
 ### Installation
 
 1. **Clone the repository**:
+
    ```bash
    git clone https://github.com/yourusername/10x-cards.git
    cd 10x-cards
    ```
 
 2. **Install Node.js version** (if using nvm):
+
    ```bash
    nvm install
    nvm use
    ```
 
 3. **Install dependencies**:
+
    ```bash
    npm install
    ```
 
 4. **Set up environment variables**:
    Create a `.env` file in the project root with the following variables:
+
    ```env
    # Supabase Configuration
    SUPABASE_URL=your_supabase_project_url
@@ -96,6 +104,7 @@ Creating high-quality flashcards manually is time-consuming and often discourage
    ```
 
 5. **Start the development server**:
+
    ```bash
    npm run dev
    ```
@@ -112,21 +121,22 @@ npm run build
 The production-ready files will be generated in the `dist/` directory.
 
 To preview the production build locally:
+
 ```bash
 npm run preview
 ```
 
 ## Available Scripts
 
-| Script | Command | Description |
-|--------|---------|-------------|
-| Development | `npm run dev` | Start the Astro development server with hot reload |
-| Build | `npm run build` | Create an optimized production build |
-| Preview | `npm run preview` | Preview the production build locally |
-| Lint | `npm run lint` | Run ESLint to check for code quality issues |
-| Lint Fix | `npm run lint:fix` | Automatically fix ESLint issues where possible |
-| Format | `npm run format` | Format code using Prettier |
-| Astro CLI | `npm run astro` | Access Astro CLI commands directly |
+| Script      | Command            | Description                                        |
+| ----------- | ------------------ | -------------------------------------------------- |
+| Development | `npm run dev`      | Start the Astro development server with hot reload |
+| Build       | `npm run build`    | Create an optimized production build               |
+| Preview     | `npm run preview`  | Preview the production build locally               |
+| Lint        | `npm run lint`     | Run ESLint to check for code quality issues        |
+| Lint Fix    | `npm run lint:fix` | Automatically fix ESLint issues where possible     |
+| Format      | `npm run format`   | Format code using Prettier                         |
+| Astro CLI   | `npm run astro`    | Access Astro CLI commands directly                 |
 
 ## Project Scope
 
@@ -187,6 +197,7 @@ Typical user workflows include:
 **Current Version**: 0.0.1 (MVP Development Phase)
 
 This project is actively under development. The MVP focuses on core functionality:
+
 - AI-powered flashcard generation
 - Basic user management
 - Spaced repetition learning sessions
@@ -194,6 +205,7 @@ This project is actively under development. The MVP focuses on core functionalit
 ### Success Metrics
 
 The MVP aims to achieve:
+
 - **75% acceptance rate** of AI-generated flashcards
 - **75% of all flashcards** created using AI assistance (vs. manual creation)
 
