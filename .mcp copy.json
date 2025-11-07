@@ -1,0 +1,25 @@
+{
+  "mcpServers": {
+    "chrome-devtools": {
+      "type": "stdio",
+      "command": "cmd",
+      "args": ["/c", "npx", "chrome-devtools-mcp@latest"],
+      "env": {}
+    },
+    "gemini-cli": {
+      "type": "stdio",
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "gemini-mcp-tool"],
+      "env": {}
+    },
+    "supabase": {
+      "type": "http",
+      "url": "http://localhost:54321/mcp"
+    },
+    "10x-mvp-tracker": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["@przeprogramowani/10x-mvp-tracker"]
+    }
+  }
+}
