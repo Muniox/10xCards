@@ -6,6 +6,59 @@ import type {
   GenerationDTO,
   GenerationStatisticsDTO,
 } from "../../types";
+import { OpenRouterService, OpenRouterError } from "./openrouter";
+import type { JSONSchema } from "./openrouter";
+
+/**
+ * Singleton instance of OpenRouter service
+ */
+let openRouterService: OpenRouterService | null = null;
+
+/**
+ * Get or create OpenRouter service instance
+ * @returns OpenRouter service instance
+ * @throws {Error} If OPENROUTER_API_KEY is not configured
+ */
+function getOpenRouterService(): OpenRouterService {
+  if (!openRouterService) {
+    const apiKey = import.meta.env.OPENROUTER_API_KEY;
+    if (!apiKey) {
+      throw new Error("OPENROUTER_API_KEY is not configured");
+    }
+
+    openRouterService = new OpenRouterService({
+      apiKey,
+      httpReferer: import.meta.env.SITE || "https://10xcards.app",
+      appTitle: "10xCards",
+    });
+  }
+  return openRouterService;
+}
+
+/**
+ * JSON Schema for flashcard generation response
+ */
+const flashcardSchema: JSONSchema = {
+  type: "object",
+  properties: {
+    flashcards: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          front: { type: "string", maxLength: 200 },
+          back: { type: "string", maxLength: 500 },
+        },
+        required: ["front", "back"],
+        additionalProperties: false,
+      },
+      minItems: 3,
+      maxItems: 8,
+    },
+  },
+  required: ["flashcards"],
+  additionalProperties: false,
+};
 
 /**
  * Hash source text using SHA-256
@@ -26,13 +79,10 @@ async function hashSourceText(text: string): Promise<string> {
  * @param model - AI model to use
  * @param sourceText - Source text to generate flashcards from
  * @returns Array of flashcard suggestions
+ * @throws {Error} If OpenRouter API error occurs or response is invalid
  */
 async function callOpenRouterAPI(model: string, sourceText: string): Promise<FlashcardSuggestion[]> {
-  const apiKey = import.meta.env.OPENROUTER_API_KEY;
-
-  if (!apiKey) {
-    throw new Error("OPENROUTER_API_KEY is not configured");
-  }
+  const service = getOpenRouterService();
 
   const systemPrompt = `You are a flashcard generator. Generate high-quality flashcards from the provided text.
 Rules:
@@ -40,19 +90,10 @@ Rules:
 - Front: A clear question or prompt (max 200 chars)
 - Back: A concise answer (max 500 chars)
 - Focus on key concepts, definitions, and important facts
-- Ensure flashcards are independent and self-contained
-- Return ONLY valid JSON array with structure: [{"front": "...", "back": "..."}]`;
+- Ensure flashcards are independent and self-contained`;
 
-  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-      "HTTP-Referer": import.meta.env.SITE || "https://10xcards.app",
-      "X-Title": "10xCards",
-    },
-    body: JSON.stringify({
-      model,
+  try {
+    const response = await service.completeWithSchema<{ flashcards: FlashcardSuggestion[] }>({
       messages: [
         {
           role: "system",
@@ -63,54 +104,21 @@ Rules:
           content: `Generate flashcards from this text:\n\n${sourceText}`,
         },
       ],
+      model,
+      schema: flashcardSchema,
+      schemaName: "flashcard_generation_response",
       temperature: 0.7,
-      max_tokens: 2000,
-    }),
-  });
+      maxTokens: 2000,
+    });
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`OpenRouter API error (${response.status}): ${errorText}`);
-  }
-
-  const data = await response.json();
-
-  if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-    throw new Error("Invalid response structure from OpenRouter API");
-  }
-
-  const content = data.choices[0].message.content;
-
-  // Parse JSON response
-  let suggestions: FlashcardSuggestion[];
-  try {
-    // Try to extract JSON array from response (AI might wrap it in markdown)
-    const jsonMatch = content.match(/\[[\s\S]*\]/);
-    if (!jsonMatch) {
-      throw new Error("No JSON array found in AI response");
-    }
-    suggestions = JSON.parse(jsonMatch[0]);
+    return response.content.flashcards;
   } catch (error) {
-    throw new Error(`Failed to parse AI response: ${error instanceof Error ? error.message : "Unknown error"}`);
-  }
-
-  // Validate suggestions structure
-  if (!Array.isArray(suggestions) || suggestions.length === 0) {
-    throw new Error("AI returned invalid or empty flashcard array");
-  }
-
-  for (const suggestion of suggestions) {
-    if (
-      !suggestion.front ||
-      !suggestion.back ||
-      typeof suggestion.front !== "string" ||
-      typeof suggestion.back !== "string"
-    ) {
-      throw new Error("AI returned flashcard with invalid structure");
+    // Map OpenRouter errors to generation errors
+    if (error instanceof OpenRouterError) {
+      throw new Error(`OpenRouter API error: ${error.message}`);
     }
+    throw error;
   }
-
-  return suggestions;
 }
 
 /**
