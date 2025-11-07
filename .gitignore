@@ -25,3 +25,6 @@ pnpm-debug.log*
 
 # env api keys
 .env
+
+# temporary test files
+temp/
