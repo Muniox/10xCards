@@ -4,12 +4,9 @@ import type { APIContext } from "astro";
 import { z } from "zod";
 
 import type { SupabaseClient } from "../../../db/supabase.client";
-import { internalError, validationError } from "../../../lib/helpers/error.helper";
+import { internalError, unauthorizedError, validationError } from "../../../lib/helpers/error.helper";
 import { getGenerationStatistics } from "../../../lib/services/generation.service";
 import { generationStatisticsQuerySchema, type GenerationStatisticsQuery } from "../../../lib/validation/schemas";
-
-// Hardcoded test user ID for manual testing phase
-const TEST_USER_ID = "00000000-0000-0000-0000-000000000000";
 
 /**
  * GET /api/generations/statistics
@@ -20,6 +17,12 @@ const TEST_USER_ID = "00000000-0000-0000-0000-000000000000";
  */
 export async function GET(context: APIContext): Promise<Response> {
   try {
+    // Verify user authentication
+    const session = await context.locals.session;
+    if (!session?.user) {
+      return unauthorizedError("Musisz być zalogowany");
+    }
+
     const supabase = context.locals.supabase as SupabaseClient;
 
     // Extract query parameters from URL
@@ -42,7 +45,7 @@ export async function GET(context: APIContext): Promise<Response> {
     }
 
     // Call service to get statistics
-    const result = await getGenerationStatistics(supabase, TEST_USER_ID, validated.period);
+    const result = await getGenerationStatistics(supabase, session.user.id, validated.period);
 
     // Return successful response
     return new Response(JSON.stringify(result), {

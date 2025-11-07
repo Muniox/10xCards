@@ -1,0 +1,15 @@
+---
+import AppLayout from "../../layouts/AppLayout.astro";
+import DashboardView from "../../components/DashboardView";
+
+// Authentication check (currently disabled in AppLayout, but prepared for future)
+// When authentication is re-enabled, this will work automatically:
+// const { data: { session } } = await Astro.locals.supabase.auth.getSession();
+// if (!session?.user) {
+//   return Astro.redirect("/login?redirect=/app/dashboard");
+// }
+---
+
+<AppLayout title="Dashboard - 10xCards">
+  <DashboardView client:load />
+</AppLayout>
