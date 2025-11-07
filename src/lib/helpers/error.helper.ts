@@ -40,6 +40,13 @@ export function notFoundError(message = "Resource not found"): Response {
 }
 
 /**
+ * Creates a 401 Unauthorized response
+ */
+export function unauthorizedError(message = "Unauthorized"): Response {
+  return errorResponse("UNAUTHORIZED", message, 401);
+}
+
+/**
  * Creates a 500 Internal Server Error response
  */
 export function internalError(message = "Internal server error", details?: Record<string, unknown>): Response {
