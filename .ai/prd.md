@@ -135,6 +135,15 @@ Kryteria akceptacji:
 - Tylko zalogowany użytkownik może wyświetlać, edytować i usuwać swoje fiszki.
 - Nie ma dostępu do fiszek innych użytkowników ani możliwości współdzielenia.
 
+ID: US-010
+Tytuł: Strona główna dla nowych użytkowników
+Opis: Jako potencjalny użytkownik chcę zobaczyć stronę główną, która wyjaśnia, co robi aplikacja i dlaczego jest użyteczna, abym mógł zdecydować, czy chcę się zarejestrować.
+Kryteria akceptacji:
+
+- Strona główna (/) jest publicznie dostępna bez logowania.
+- Strona jasno opisuje główne funkcje (generowanie AI, nauka).
+- Strona posiada wyraźne przyciski/linki do rejestracji i logowania.
+
 ## 6. Metryki sukcesu
 
 1. Efektywność generowania fiszek:

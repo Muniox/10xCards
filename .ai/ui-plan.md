@@ -8,9 +8,24 @@ Struktura jest zorientowana na widoki, z których każdy odpowiada za określon�
 
 ## 2. Lista widoków
 
+### Widok: Strona Główna (Landing Page)
+- **Ścieżka widoku:** `/`
+- **Główny cel:** Przedstawienie aplikacji nowym, niezalogowanym użytkownikom, wyjaśnienie jej wartości i zachęcenie do rejestracji.
+- **Kluczowe informacje do wyświetlenia:**
+    - Chwytliwy nagłówek (np. "Twórz fiszki 10x szybciej z AI").
+    - Krótki opis kluczowych funkcji (generowanie z tekstu, inteligentne powtórki).
+    - Grafika lub krótki filmik pokazujący działanie aplikacji.
+    - Wyraźne przyciski Call-to-Action (CTA) do logowania i rejestracji.
+- **Kluczowe komponenty widoku:**
+    - `Button`: Przyciski CTA ("Zacznij za darmo", "Zaloguj się").
+    - Komponenty do budowy sekcji marketingowych (np. `Hero`, `FeatureSection`).
+- **UX, dostępność i względy bezpieczeństwa:**
+    - **UX:** Strona powinna być atrakcyjna wizualnie i jasno komunikować korzyści.
+    - **Dostępność:** Strona publiczna musi być w pełni dostępna, z poprawną strukturą nagłówków i semantycznym HTML.
+
 ### Widok: Dashboard (Panel Główny)
 - **Ścieżka widoku:** `/app/dashboard`
-- **Główny cel:** Prezentacja zagregowanych statystyk dotyczących efektywności generowania fiszek przez AI.
+- **Główny cel:** Prezentacja zagregowanych statystyk dotyczących efektywności generowania fiszek przez AI. Jest to domyślny widok po zalogowaniu.
 - **Kluczowe informacje do wyświetlenia:**
     - Łączna liczba generacji (`total_generations`).
     - Łączna liczba wygenerowanych fiszek (`total_generated_flashcards`).
@@ -85,23 +100,33 @@ Struktura jest zorientowana na widoki, z których każdy odpowiada za określon�
 
 ## 3. Mapa podróży użytkownika
 
-Główny przepływ użytkownika (happy path) koncentruje się na jak najszybszym przejściu od tekstu źródłowego do gotowych fiszek.
+Główny przepływ użytkownika (happy path) zaczyna się od zapoznania się z aplikacją, a następnie przechodzi do kluczowej funkcji, jaką jest generowanie fiszek.
 
-1.  **Start:** Użytkownik ląduje w aplikacji i przechodzi do widoku **Generatora Fiszek**.
-2.  **Generowanie:** Wkleja tekst w `Textarea` i klika "Generuj". Aplikacja wyświetla stan ładowania, a następnie listę propozycji fiszek pobranych z `POST /api/generations`.
-3.  **Selekcja i Edycja:** Użytkownik przegląda sugestie. Zaznacza `Checkbox` przy fiszkach, które chce zachować, i opcjonalnie edytuje ich treść bezpośrednio na liście.
-4.  **Zapis:** Klika "Zapisz wybrane", co wysyła żądanie `POST /api/flashcards/bulk`. Otrzymuje powiadomienie `Toast` o sukcesie.
-5.  **Zarządzanie:** Przechodzi do widoku **Moje Fiszki**. Widzi nowo dodane pozycje na liście. Może je edytować (w `Dialog`), usuwać (z potwierdzeniem w `AlertDialog`) lub dodać nową ręcznie.
-6.  **Nauka:** Przechodzi do widoku **Sesja Nauki**, aby rozpocząć powtórki materiału.
-7.  **Analiza:** Wraca do **Dashboardu**, aby zobaczyć zaktualizowane statystyki swojej aktywności.
+1.  **Start (Niezalogowany użytkownik):** Użytkownik ląduje na **Stronie Głównej (Landing Page)** (`/`). Zapoznaje się z funkcjami aplikacji i klika przycisk "Zaloguj się" lub "Zarejestruj".
+2.  **Logowanie i Przekierowanie:** Po pomyślnym zalogowaniu lub rejestracji, użytkownik jest przekierowywany do widoku **Generatora Fiszek** (`/app/generate`).
+3.  **Generowanie:** Wkleja tekst w `Textarea` i klika "Generuj". Aplikacja wyświetla stan ładowania, a następnie listę propozycji fiszek pobranych z `POST /api/generations`.
+4.  **Selekcja i Edycja:** Użytkownik przegląda sugestie. Zaznacza `Checkbox` przy fiszkach, które chce zachować, i opcjonalnie edytuje ich treść bezpośrednio na liście.
+5.  **Zapis:** Klika "Zapisz wybrane", co wysyła żądanie `POST /api/flashcards/bulk`. Otrzymuje powiadomienie `Toast` o sukcesie.
+6.  **Zarządzanie:** Przechodzi do widoku **Moje Fiszki**. Widzi nowo dodane pozycje na liście. Może je edytować (w `Dialog`), usuwać (z potwierdzeniem w `AlertDialog`) lub dodać nową ręcznie.
+7.  **Nauka:** Przechodzi do widoku **Sesja Nauki**, aby rozpocząć powtórki materiału.
+8.  **Analiza:** Wraca do **Dashboardu**, aby zobaczyć zaktualizowane statystyki swojej aktywności.
 
 ## 4. Układ i struktura nawigacji
 
-Nawigacja w aplikacji jest prosta i scentralizowana, aby zapewnić łatwy dostęp do kluczowych funkcji.
+Nawigacja w aplikacji jest podzielona na dwie części: dla użytkowników niezalogowanych (publiczna strona główna) i zalogowanych (panel aplikacji).
 
-- **Główna Nawigacja:** Poziomy pasek nawigacyjny (`Top Bar`) umieszczony na górze każdej strony wewnątrz aplikacji (`/app/*`).
+### Nawigacja publiczna (dla niezalogowanych)
+- **Kontekst:** Widoczna na stronie głównej (`/`).
+- **Elementy:**
+    - **Logo/Nazwa:** Link do strony głównej.
+    - **Linki (opcjonalnie):** `Funkcje`, `Cennik`.
+    - **Akcje:** Przyciski `Zaloguj się` i `Zarejestruj się`.
+
+### Nawigacja w aplikacji (dla zalogowanych)
+- **Kontekst:** Widoczna na wszystkich stronach wewnątrz aplikacji (`/app/*`).
+- **Główna Nawigacja:** Poziomy pasek nawigacyjny (`Top Bar`) umieszczony na górze strony.
 - **Elementy Paska:**
-    - **Logo/Nazwa:** Link do domyślnego widoku po zalogowaniu, czyli **Dashboardu**.
+    - **Logo/Nazwa:** Link do domyślnego widoku po zalogowaniu, czyli **Generatora Fiszek** (`/app/generate`).
     - **Linki nawigacyjne:** `Dashboard`, `Generator`, `Moje Fiszki`, `Sesja Nauki`.
 - **Menu użytkownika:**
     - Po prawej stronie paska znajduje się ikona użytkownika.
