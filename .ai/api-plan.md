@@ -2,11 +2,11 @@
 
 ## 1. Resources
 
-| Resource | Database Table | Description |
-|----------|---------------|-------------|
-| Flashcards | `flashcards` | Individual flashcard items with front/back content |
-| Generations | `generations` | Records of AI generation sessions |
-| Generation Statistics | `generations` (aggregated) | Analytics about AI generation effectiveness |
+| Resource              | Database Table             | Description                                        |
+| --------------------- | -------------------------- | -------------------------------------------------- |
+| Flashcards            | `flashcards`               | Individual flashcard items with front/back content |
+| Generations           | `generations`              | Records of AI generation sessions                  |
+| Generation Statistics | `generations` (aggregated) | Analytics about AI generation effectiveness        |
 
 ## 2. Endpoints
 
@@ -24,6 +24,7 @@
   - `generation_id` (number, optional): Filter by specific generation
 - **Request Body**: None
 - **Response** (200 OK):
+
 ```json
 {
   "data": [
@@ -45,6 +46,7 @@
   }
 }
 ```
+
 - **Error Responses**:
   - `400 Bad Request`: Invalid query parameters
 
@@ -57,6 +59,7 @@
   - `id` (number, required): Flashcard ID
 - **Request Body**: None
 - **Response** (200 OK):
+
 ```json
 {
   "id": 123,
@@ -68,6 +71,7 @@
   "updated_at": "2025-01-15T10:30:00Z"
 }
 ```
+
 - **Error Responses**:
   - `404 Not Found`: Flashcard doesn't exist
   - `400 Bad Request`: Invalid ID format
@@ -78,16 +82,19 @@
 - **Path**: `/api/flashcards`
 - **Description**: Create a single flashcard manually
 - **Request Body**:
+
 ```json
 {
   "front": "What is the capital of France?",
   "back": "Paris"
 }
 ```
+
 - **Validation Rules**:
   - `front`: Required, string, 1-200 characters
   - `back`: Required, string, 1-500 characters
 - **Response** (201 Created):
+
 ```json
 {
   "id": 124,
@@ -99,6 +106,7 @@
   "updated_at": "2025-01-15T11:00:00Z"
 }
 ```
+
 - **Error Responses**:
   - `400 Bad Request`: Validation errors
   - `422 Unprocessable Entity`: Invalid data format
@@ -109,6 +117,7 @@
 - **Path**: `/api/flashcards/bulk`
 - **Description**: Save multiple flashcards from an AI generation session
 - **Request Body**:
+
 ```json
 {
   "generation_id": 45,
@@ -126,6 +135,7 @@
   ]
 }
 ```
+
 - **Validation Rules**:
   - `generation_id`: Required, must exist
   - `flashcards`: Required, array with 1-50 items
@@ -134,6 +144,7 @@
     - `back`: Required, string, 1-500 characters
     - `source`: Required, must be 'ai-full' or 'ai-edited'
 - **Response** (201 Created):
+
 ```json
 {
   "created_count": 2,
@@ -159,6 +170,7 @@
   ]
 }
 ```
+
 - **Side Effects**: Updates `accepted_unedited_count` and `accepted_edited_count` in the corresponding generation record
 - **Error Responses**:
   - `400 Bad Request`: Validation errors
@@ -173,18 +185,21 @@
 - **URL Parameters**:
   - `id` (number, required): Flashcard ID
 - **Request Body**:
+
 ```json
 {
   "front": "What is spaced repetition learning?",
   "back": "A learning technique that involves reviewing information at systematically increasing intervals to improve long-term retention"
 }
 ```
+
 - **Validation Rules**:
   - At least one field must be provided
   - `front`: Optional, string, 1-200 characters
   - `back`: Optional, string, 1-500 characters
 - **Business Logic**: If the flashcard source is 'ai-full', it will be changed to 'ai-edited' upon update
 - **Response** (200 OK):
+
 ```json
 {
   "id": 123,
@@ -196,6 +211,7 @@
   "updated_at": "2025-01-15T11:10:00Z"
 }
 ```
+
 - **Error Responses**:
   - `404 Not Found`: Flashcard doesn't exist
   - `400 Bad Request`: Validation errors or no fields provided
@@ -222,16 +238,19 @@
 - **Path**: `/api/generations`
 - **Description**: Generate flashcard suggestions from provided text using AI
 - **Request Body**:
+
 ```json
 {
   "source_text": "Spaced repetition is a learning technique that incorporates increasing intervals of time between subsequent review of previously learned material in order to exploit the psychological spacing effect...",
   "model": "openai/gpt-4"
 }
 ```
+
 - **Validation Rules**:
   - `source_text`: Required, string, 1000-10000 characters
   - `model`: Optional, string, defaults to configured default model
 - **Response** (200 OK):
+
 ```json
 {
   "generation_id": 46,
@@ -251,6 +270,7 @@
   "created_at": "2025-01-15T11:15:00Z"
 }
 ```
+
 - **Business Logic**:
   - Creates a generation record with initial statistics
   - Calls OpenRouter API with the provided text
@@ -273,6 +293,7 @@
   - `limit` (number, optional, default: 20, max: 100): Items per page
 - **Request Body**: None
 - **Response** (200 OK):
+
 ```json
 {
   "data": [
@@ -295,6 +316,7 @@
   }
 }
 ```
+
 - **Error Responses**:
   - `400 Bad Request`: Invalid query parameters
 
@@ -307,6 +329,7 @@
   - `period` (string, optional): Filter by time period ('week', 'month', 'all'), default: 'all'
 - **Request Body**: None
 - **Response** (200 OK):
+
 ```json
 {
   "total_generations": 10,
@@ -321,6 +344,7 @@
   "period": "all"
 }
 ```
+
 - **Error Responses**:
   - `400 Bad Request`: Invalid period parameter
 
@@ -331,6 +355,7 @@
 All validation is implemented using **Zod schemas** in API endpoints:
 
 #### Flashcard Validation
+
 ```typescript
 {
   front: z.string().min(1).max(200),
@@ -340,6 +365,7 @@ All validation is implemented using **Zod schemas** in API endpoints:
 ```
 
 #### Generation Validation
+
 ```typescript
 {
   source_text: z.string().min(1000).max(10000),
@@ -348,6 +374,7 @@ All validation is implemented using **Zod schemas** in API endpoints:
 ```
 
 #### Pagination Validation
+
 ```typescript
 {
   page: z.number().int().min(1).optional(),
@@ -358,6 +385,7 @@ All validation is implemented using **Zod schemas** in API endpoints:
 ### 3.2. Business Logic Implementation
 
 #### AI Generation Flow
+
 1. Validate source text length (1000-10000 characters)
 2. Hash source text using SHA-256 for deduplication tracking
 3. Create generation record with initial metadata
@@ -368,6 +396,7 @@ All validation is implemented using **Zod schemas** in API endpoints:
 8. On error: Log to `generation_error_logs` table and return user-friendly error
 
 #### Flashcard Acceptance Flow
+
 1. Verify generation_id exists
 2. Validate each flashcard in the bulk request
 3. Insert flashcards with appropriate source tags
@@ -377,6 +406,7 @@ All validation is implemented using **Zod schemas** in API endpoints:
 5. Return created flashcards
 
 #### Flashcard Update Logic
+
 1. If source is 'ai-full', change to 'ai-edited'
 2. Update content fields
 3. Update `updated_at` timestamp (via trigger)
@@ -402,6 +432,7 @@ All endpoints follow consistent error response format:
 ```
 
 **Error Categories**:
+
 - `VALIDATION_ERROR` (400): Input validation failures
 - `NOT_FOUND` (404): Resource doesn't exist
 - `RATE_LIMIT_ERROR` (429): Too many requests
@@ -409,6 +440,7 @@ All endpoints follow consistent error response format:
 - `INTERNAL_ERROR` (500): Unexpected server errors
 
 **Error Logging**:
+
 - AI generation errors are logged to `generation_error_logs` table
 - All server errors are logged with stack traces for debugging
 - User-facing error messages are sanitized to avoid exposing sensitive information
@@ -428,15 +460,18 @@ All endpoints follow consistent error response format:
 Rate limiting is implemented in Astro middleware (`src/middleware/index.ts`) to protect against abuse and control AI API costs.
 
 **Implementation Strategy**:
+
 - Use in-memory cache (or Redis for production) to track request counts per IP address
 - Apply different limits based on endpoint path
 - Reset counters using sliding window algorithm
 
 **Rate Limits**:
+
 - **Generation Endpoint** (`/api/generations`): 10 requests per hour per IP
 - **Other Endpoints**: 100 requests per minute per IP
 
 **Middleware Logic**:
+
 ```typescript
 // Pseudo-code for middleware implementation
 export const onRequest = defineMiddleware(async (context, next) => {
@@ -444,38 +479,42 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const path = context.url.pathname;
 
   // Check rate limit for this IP and path
-  const limit = path.includes('/generations') ? { max: 10, window: 3600 } : { max: 100, window: 60 };
+  const limit = path.includes("/generations") ? { max: 10, window: 3600 } : { max: 100, window: 60 };
   const { allowed, remaining, reset } = checkRateLimit(ip, path, limit);
 
   if (!allowed) {
-    return new Response(JSON.stringify({
-      error: {
-        code: 'RATE_LIMIT_ERROR',
-        message: 'Too many requests. Please try again later.'
+    return new Response(
+      JSON.stringify({
+        error: {
+          code: "RATE_LIMIT_ERROR",
+          message: "Too many requests. Please try again later.",
+        },
+      }),
+      {
+        status: 429,
+        headers: {
+          "Content-Type": "application/json",
+          "X-RateLimit-Limit": String(limit.max),
+          "X-RateLimit-Remaining": "0",
+          "X-RateLimit-Reset": String(reset),
+        },
       }
-    }), {
-      status: 429,
-      headers: {
-        'Content-Type': 'application/json',
-        'X-RateLimit-Limit': String(limit.max),
-        'X-RateLimit-Remaining': '0',
-        'X-RateLimit-Reset': String(reset)
-      }
-    });
+    );
   }
 
   const response = await next();
 
   // Add rate limit headers to successful responses
-  response.headers.set('X-RateLimit-Limit', String(limit.max));
-  response.headers.set('X-RateLimit-Remaining', String(remaining));
-  response.headers.set('X-RateLimit-Reset', String(reset));
+  response.headers.set("X-RateLimit-Limit", String(limit.max));
+  response.headers.set("X-RateLimit-Remaining", String(remaining));
+  response.headers.set("X-RateLimit-Reset", String(reset));
 
   return response;
 });
 ```
 
 **Rate Limit Headers** (included in all responses):
+
 - `X-RateLimit-Limit`: Maximum requests allowed in the time window
 - `X-RateLimit-Remaining`: Requests remaining in current window
 - `X-RateLimit-Reset`: Unix timestamp when the limit resets

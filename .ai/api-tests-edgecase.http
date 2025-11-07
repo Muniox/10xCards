@@ -1,0 +1,578 @@
+# 10xCards REST API Tests
+# Test User ID: 00000000-0000-0000-0000-000000000000
+# Base URL: http://localhost:3000
+
+@baseUrl = http://localhost:3000
+@testUserId = 00000000-0000-0000-0000-000000000000
+
+###############################################################################
+# 1. FLASHCARD ENDPOINTS
+###############################################################################
+
+### 1.1 List Flashcards - GET /api/flashcards
+# @name listFlashcards
+GET {{baseUrl}}/api/flashcards HTTP/1.1
+
+### 1.2 List Flashcards - With Pagination
+GET {{baseUrl}}/api/flashcards?page=1&limit=10 HTTP/1.1
+
+### 1.3 List Flashcards - Filter by Source
+GET {{baseUrl}}/api/flashcards?source=manual HTTP/1.1
+
+### 1.4 List Flashcards - Filter by Generation ID
+GET {{baseUrl}}/api/flashcards?generation_id=1 HTTP/1.1
+
+### 1.5 List Flashcards - Combined Filters
+GET {{baseUrl}}/api/flashcards?page=1&limit=5&source=ai-full HTTP/1.1
+
+###############################################################################
+
+### 2.1 Get Single Flashcard - GET /api/flashcards/:id
+# @name getFlashcard
+GET {{baseUrl}}/api/flashcards/1 HTTP/1.1
+
+### 2.2 Get Non-existent Flashcard (should return 404)
+GET {{baseUrl}}/api/flashcards/99999 HTTP/1.1
+
+###############################################################################
+
+### 3.1 Create Manual Flashcard - POST /api/flashcards
+# @name createFlashcard
+POST {{baseUrl}}/api/flashcards HTTP/1.1
+Content-Type: application/json
+
+{
+  "front": "What is spaced repetition?",
+  "back": "A learning technique that involves reviewing information at increasing intervals to improve long-term retention"
+}
+
+### 3.2 Create Another Manual Flashcard
+# @name createFlashcard2
+POST {{baseUrl}}/api/flashcards HTTP/1.1
+Content-Type: application/json
+
+{
+  "front": "What is active recall?",
+  "back": "A learning principle where you actively stimulate memory during the learning process"
+}
+
+### 3.3 Create Flashcard - Test Validation (empty front - should fail)
+POST {{baseUrl}}/api/flashcards HTTP/1.1
+Content-Type: application/json
+
+{
+  "front": "",
+  "back": "This should fail validation"
+}
+
+### 3.4 Create Flashcard - Test Validation (too long front - should fail)
+POST {{baseUrl}}/api/flashcards HTTP/1.1
+Content-Type: application/json
+
+{
+  "front": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
+  "back": "This front text is too long"
+}
+
+### 3.5 Create Flashcard - Test Validation (missing back - should fail)
+POST {{baseUrl}}/api/flashcards HTTP/1.1
+Content-Type: application/json
+
+{
+  "front": "Missing back field"
+}
+
+###############################################################################
+
+### 4.1 Update Flashcard - PATCH /api/flashcards/:id
+# Note: Replace :id with actual flashcard ID from previous responses
+# @name updateFlashcard
+PATCH {{baseUrl}}/api/flashcards/{{createFlashcard.response.body.$.id}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "front": "What is spaced repetition learning?",
+  "back": "A learning technique that involves reviewing information at systematically increasing intervals to improve long-term retention"
+}
+
+### 4.2 Update Flashcard - Only Front
+PATCH {{baseUrl}}/api/flashcards/{{createFlashcard.response.body.$.id}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "front": "Updated front only"
+}
+
+### 4.3 Update Flashcard - Only Back
+PATCH {{baseUrl}}/api/flashcards/{{createFlashcard.response.body.$.id}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "back": "Updated back only"
+}
+
+### 4.4 Update Flashcard - No Fields (should fail)
+PATCH {{baseUrl}}/api/flashcards/{{createFlashcard.response.body.$.id}} HTTP/1.1
+Content-Type: application/json
+
+{}
+
+### 4.5 Update Non-existent Flashcard (should return 404)
+PATCH {{baseUrl}}/api/flashcards/99999 HTTP/1.1
+Content-Type: application/json
+
+{
+  "front": "This won't work"
+}
+
+###############################################################################
+
+### 5.1 Delete Flashcard - DELETE /api/flashcards/:id
+# @name deleteFlashcard
+DELETE {{baseUrl}}/api/flashcards/{{createFlashcard2.response.body.$.id}} HTTP/1.1
+
+### 5.2 Delete Non-existent Flashcard (should return 404)
+DELETE {{baseUrl}}/api/flashcards/99999 HTTP/1.1
+
+###############################################################################
+# 2. AI GENERATION ENDPOINTS
+###############################################################################
+
+### 6.1 Generate Flashcard Suggestions - POST /api/generations
+# @name generateFlashcards
+POST {{baseUrl}}/api/generations HTTP/1.1
+Content-Type: application/json
+
+{
+  "source_text": "Spaced repetition is a learning technique that incorporates increasing intervals of time between subsequent review of previously learned material in order to exploit the psychological spacing effect. The spacing effect refers to the phenomenon whereby learning is greater when studying is spread out over time, as opposed to studying the same amount of content in a single session. Alternative names include spaced rehearsal, expanding rehearsal, graduated intervals, repetition spacing, repetition scheduling, spaced retrieval and expanded retrieval. The use of spaced repetition has been shown to increase the rate of learning. Although the principle is useful in many contexts, spaced repetition is commonly applied in contexts in which a learner must acquire many items and retain them indefinitely in memory. It is therefore well suited for the problem of vocabulary acquisition in the course of second language learning, due to the size of the target language's inventory of open-class words.",
+  "model": "openai/gpt-4"
+}
+
+### 6.2 Generate with Default Model
+POST {{baseUrl}}/api/generations HTTP/1.1
+Content-Type: application/json
+
+{
+  "source_text": "Active recall is a principle of efficient learning, which claims that memory is better when actively trying to retrieve information from memory. This is in contrast to passive review, in which information is merely re-read or re-watched. The testing effect is the finding that long-term memory is often increased when some of the learning period is devoted to retrieving the to-be-remembered information through testing with proper feedback. Active recall has been studied extensively in both classroom and laboratory settings. The use of active recall in learning has been shown to be more effective than passive review methods such as re-reading or highlighting. When using active recall, learners are forced to retrieve information from memory, which strengthens the memory trace and makes it more resistant to forgetting. This process is known as retrieval practice, and it is one of the most effective learning strategies available.",
+  "model": "openai/gpt-3.5-turbo"
+}
+
+### 6.3 Generate - Test Validation (text too short - should fail)
+POST {{baseUrl}}/api/generations HTTP/1.1
+Content-Type: application/json
+
+{
+  "source_text": "This text is way too short to generate meaningful flashcards. It should fail validation because it doesn't meet the minimum character requirement of 1000 characters.",
+  "model": "openai/gpt-4"
+}
+
+### 6.4 Generate - Test Validation (text too long - should fail)
+# Note: This would need a text longer than 10000 characters
+POST {{baseUrl}}/api/generations HTTP/1.1
+Content-Type: application/json
+
+{
+  "source_text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit...[text over 10000 chars]",
+  "model": "openai/gpt-4"
+}
+
+###############################################################################
+
+### 7.1 Bulk Create Flashcards - POST /api/flashcards/bulk
+# Note: Use generation_id from previous generation response
+# @name bulkCreateFlashcards
+POST {{baseUrl}}/api/flashcards/bulk HTTP/1.1
+Content-Type: application/json
+
+{
+  "generation_id": {{generateFlashcards.response.body.$.generation_id}},
+  "flashcards": [
+    {
+      "front": "What is spaced repetition?",
+      "back": "A learning technique that incorporates increasing intervals of time between subsequent review",
+      "source": "ai-full"
+    },
+    {
+      "front": "What is the spacing effect?",
+      "back": "The phenomenon whereby learning is greater when studying is spread out over time",
+      "source": "ai-edited"
+    },
+    {
+      "front": "What are alternative names for spaced repetition?",
+      "back": "Spaced rehearsal, expanding rehearsal, graduated intervals, repetition spacing",
+      "source": "ai-full"
+    }
+  ]
+}
+
+### 7.2 Bulk Create - Test Validation (invalid source - should fail)
+POST {{baseUrl}}/api/flashcards/bulk HTTP/1.1
+Content-Type: application/json
+
+{
+  "generation_id": 1,
+  "flashcards": [
+    {
+      "front": "Test",
+      "back": "Test",
+      "source": "manual"
+    }
+  ]
+}
+
+### 7.3 Bulk Create - Test Validation (empty array - should fail)
+POST {{baseUrl}}/api/flashcards/bulk HTTP/1.1
+Content-Type: application/json
+
+{
+  "generation_id": 1,
+  "flashcards": []
+}
+
+### 7.4 Bulk Create - Test Validation (non-existent generation - should fail)
+POST {{baseUrl}}/api/flashcards/bulk HTTP/1.1
+Content-Type: application/json
+
+{
+  "generation_id": 99999,
+  "flashcards": [
+    {
+      "front": "Test",
+      "back": "Test",
+      "source": "ai-full"
+    }
+  ]
+}
+
+###############################################################################
+
+### 8.1 List Generations - GET /api/generations
+# @name listGenerations
+GET {{baseUrl}}/api/generations HTTP/1.1
+
+### 8.2 List Generations - With Pagination
+GET {{baseUrl}}/api/generations?page=1&limit=5 HTTP/1.1
+
+### 8.3 List Generations - Second Page
+GET {{baseUrl}}/api/generations?page=2&limit=10 HTTP/1.1
+
+###############################################################################
+
+### 9.1 Get Generation Statistics - GET /api/generations/statistics
+# @name getStatistics
+GET {{baseUrl}}/api/generations/statistics HTTP/1.1
+
+### 9.2 Get Statistics - Last Week
+GET {{baseUrl}}/api/generations/statistics?period=week HTTP/1.1
+
+### 9.3 Get Statistics - Last Month
+GET {{baseUrl}}/api/generations/statistics?period=month HTTP/1.1
+
+### 9.4 Get Statistics - All Time
+GET {{baseUrl}}/api/generations/statistics?period=all HTTP/1.1
+
+### 9.5 Get Statistics - Invalid Period (should fail)
+GET {{baseUrl}}/api/generations/statistics?period=invalid HTTP/1.1
+
+###############################################################################
+# 3. ERROR SCENARIOS & EDGE CASES
+###############################################################################
+
+### 10.1 Invalid Method
+PUT {{baseUrl}}/api/flashcards HTTP/1.1
+Content-Type: application/json
+
+{
+  "front": "This should fail",
+  "back": "PUT not supported"
+}
+
+### 10.2 Invalid Content-Type
+POST {{baseUrl}}/api/flashcards HTTP/1.1
+Content-Type: text/plain
+
+This is not JSON
+
+### 10.3 Malformed JSON
+POST {{baseUrl}}/api/flashcards HTTP/1.1
+Content-Type: application/json
+
+{
+  "front": "Missing closing quote,
+  "back": "Invalid JSON"
+}
+
+### 10.4 SQL Injection Attempt (should be sanitized)
+GET {{baseUrl}}/api/flashcards?source='; DROP TABLE flashcards;-- HTTP/1.1
+
+### 10.5 XSS Attempt in Flashcard (should be sanitized)
+POST {{baseUrl}}/api/flashcards HTTP/1.1
+Content-Type: application/json
+
+{
+  "front": "<script>alert('XSS')</script>",
+  "back": "<img src=x onerror=alert('XSS')>"
+}
+
+### 10.6 Pagination - Negative Page Number (should fail)
+GET {{baseUrl}}/api/flashcards?page=-1 HTTP/1.1
+
+### 10.7 Pagination - Limit Exceeds Maximum (should fail)
+GET {{baseUrl}}/api/flashcards?limit=999 HTTP/1.1
+
+### 10.8 Invalid ID Format
+GET {{baseUrl}}/api/flashcards/abc HTTP/1.1
+
+###############################################################################
+# 4. COMPLETE WORKFLOW TEST
+###############################################################################
+
+### 11.1 Complete Workflow - Step 1: Generate Flashcards
+# @name workflowGenerate
+POST {{baseUrl}}/api/generations HTTP/1.1
+Content-Type: application/json
+
+{
+  "source_text": "The Pomodoro Technique is a time management method developed by Francesco Cirillo in the late 1980s. The technique uses a timer to break down work into intervals, traditionally 25 minutes in length, separated by short breaks. Each interval is known as a pomodoro, from the Italian word for 'tomato', after the tomato-shaped kitchen timer that Cirillo used as a university student. The method is based on the idea that frequent breaks can improve mental agility. There are six steps in the original technique: 1) Decide on the task to be done, 2) Set the pomodoro timer (traditionally to 25 minutes), 3) Work on the task, 4) End work when the timer rings and put a checkmark on a piece of paper, 5) If you have fewer than four checkmarks, take a short break (3–5 minutes), then go to step 2, 6) After four pomodoros, take a longer break (15–30 minutes), reset your checkmark count to zero, then go to step 1. The Pomodoro Technique has been widely popularized by dozens of apps and websites providing timers and instructions. Closely related to concepts such as timeboxing and iterative and incremental development used in software design, the method has been adopted in pair programming contexts.",
+  "model": "openai/gpt-3.5-turbo"
+}
+
+### 11.2 Complete Workflow - Step 2: Review Generated Suggestions
+GET {{baseUrl}}/api/generations/{{workflowGenerate.response.body.$.generation_id}} HTTP/1.1
+
+### 11.3 Complete Workflow - Step 3: Accept Some Flashcards
+# @name workflowBulkCreate
+POST {{baseUrl}}/api/flashcards/bulk HTTP/1.1
+Content-Type: application/json
+
+{
+  "generation_id": {{workflowGenerate.response.body.$.generation_id}},
+  "flashcards": [
+    {
+      "front": "What is the Pomodoro Technique?",
+      "back": "A time management method that uses a timer to break work into intervals, traditionally 25 minutes in length, separated by short breaks",
+      "source": "ai-full"
+    },
+    {
+      "front": "Who developed the Pomodoro Technique and when?",
+      "back": "Francesco Cirillo in the late 1980s",
+      "source": "ai-edited"
+    },
+    {
+      "front": "How long is a traditional pomodoro interval?",
+      "back": "25 minutes",
+      "source": "ai-full"
+    }
+  ]
+}
+
+### 11.4 Complete Workflow - Step 4: List All Flashcards
+GET {{baseUrl}}/api/flashcards HTTP/1.1
+
+### 11.5 Complete Workflow - Step 5: Get Statistics
+GET {{baseUrl}}/api/generations/statistics HTTP/1.1
+
+### 11.6 Complete Workflow - Step 6: Update a Flashcard
+PATCH {{baseUrl}}/api/flashcards/{{workflowBulkCreate.response.body.$.flashcards[0].id}} HTTP/1.1
+Content-Type: application/json
+
+{
+  "back": "A time management method developed by Francesco Cirillo that uses a timer to break work into 25-minute intervals called pomodoros, separated by short breaks to improve mental agility"
+}
+
+### 11.7 Complete Workflow - Step 7: Get Updated Flashcard
+GET {{baseUrl}}/api/flashcards/{{workflowBulkCreate.response.body.$.flashcards[0].id}} HTTP/1.1
+
+### 11.8 Complete Workflow - Step 8: Filter Flashcards by Generation
+GET {{baseUrl}}/api/flashcards?generation_id={{workflowGenerate.response.body.$.generation_id}} HTTP/1.1
+
+### 11.9 Complete Workflow - Step 9: Create Manual Flashcard
+# @name workflowManual
+POST {{baseUrl}}/api/flashcards HTTP/1.1
+Content-Type: application/json
+
+{
+  "front": "What are the benefits of the Pomodoro Technique?",
+  "back": "Improved focus, reduced mental fatigue, better time awareness, and increased productivity through structured work intervals"
+}
+
+### 11.10 Complete Workflow - Step 10: Filter by Source (manual)
+GET {{baseUrl}}/api/flashcards?source=manual HTTP/1.1
+
+###############################################################################
+# 5. PERFORMANCE & STRESS TESTS
+###############################################################################
+
+### 12.1 Large Bulk Create (50 flashcards - maximum allowed)
+POST {{baseUrl}}/api/flashcards/bulk HTTP/1.1
+Content-Type: application/json
+
+{
+  "generation_id": 1,
+  "flashcards": [
+    {"front": "Q1", "back": "A1", "source": "ai-full"},
+    {"front": "Q2", "back": "A2", "source": "ai-full"},
+    {"front": "Q3", "back": "A3", "source": "ai-full"},
+    {"front": "Q4", "back": "A4", "source": "ai-full"},
+    {"front": "Q5", "back": "A5", "source": "ai-full"},
+    {"front": "Q6", "back": "A6", "source": "ai-full"},
+    {"front": "Q7", "back": "A7", "source": "ai-full"},
+    {"front": "Q8", "back": "A8", "source": "ai-full"},
+    {"front": "Q9", "back": "A9", "source": "ai-full"},
+    {"front": "Q10", "back": "A10", "source": "ai-full"},
+    {"front": "Q11", "back": "A11", "source": "ai-full"},
+    {"front": "Q12", "back": "A12", "source": "ai-full"},
+    {"front": "Q13", "back": "A13", "source": "ai-full"},
+    {"front": "Q14", "back": "A14", "source": "ai-full"},
+    {"front": "Q15", "back": "A15", "source": "ai-full"},
+    {"front": "Q16", "back": "A16", "source": "ai-full"},
+    {"front": "Q17", "back": "A17", "source": "ai-full"},
+    {"front": "Q18", "back": "A18", "source": "ai-full"},
+    {"front": "Q19", "back": "A19", "source": "ai-full"},
+    {"front": "Q20", "back": "A20", "source": "ai-full"},
+    {"front": "Q21", "back": "A21", "source": "ai-full"},
+    {"front": "Q22", "back": "A22", "source": "ai-full"},
+    {"front": "Q23", "back": "A23", "source": "ai-full"},
+    {"front": "Q24", "back": "A24", "source": "ai-full"},
+    {"front": "Q25", "back": "A25", "source": "ai-full"},
+    {"front": "Q26", "back": "A26", "source": "ai-full"},
+    {"front": "Q27", "back": "A27", "source": "ai-full"},
+    {"front": "Q28", "back": "A28", "source": "ai-full"},
+    {"front": "Q29", "back": "A29", "source": "ai-full"},
+    {"front": "Q30", "back": "A30", "source": "ai-full"},
+    {"front": "Q31", "back": "A31", "source": "ai-full"},
+    {"front": "Q32", "back": "A32", "source": "ai-full"},
+    {"front": "Q33", "back": "A33", "source": "ai-full"},
+    {"front": "Q34", "back": "A34", "source": "ai-full"},
+    {"front": "Q35", "back": "A35", "source": "ai-full"},
+    {"front": "Q36", "back": "A36", "source": "ai-full"},
+    {"front": "Q37", "back": "A37", "source": "ai-full"},
+    {"front": "Q38", "back": "A38", "source": "ai-full"},
+    {"front": "Q39", "back": "A39", "source": "ai-full"},
+    {"front": "Q40", "back": "A40", "source": "ai-full"},
+    {"front": "Q41", "back": "A41", "source": "ai-full"},
+    {"front": "Q42", "back": "A42", "source": "ai-full"},
+    {"front": "Q43", "back": "A43", "source": "ai-full"},
+    {"front": "Q44", "back": "A44", "source": "ai-full"},
+    {"front": "Q45", "back": "A45", "source": "ai-full"},
+    {"front": "Q46", "back": "A46", "source": "ai-full"},
+    {"front": "Q47", "back": "A47", "source": "ai-full"},
+    {"front": "Q48", "back": "A48", "source": "ai-full"},
+    {"front": "Q49", "back": "A49", "source": "ai-full"},
+    {"front": "Q50", "back": "A50", "source": "ai-full"}
+  ]
+}
+
+### 12.2 Bulk Create Exceeding Limit (should fail)
+POST {{baseUrl}}/api/flashcards/bulk HTTP/1.1
+Content-Type: application/json
+
+{
+  "generation_id": 1,
+  "flashcards": [
+    {"front": "Q1", "back": "A1", "source": "ai-full"},
+    {"front": "Q2", "back": "A2", "source": "ai-full"},
+    {"front": "Q3", "back": "A3", "source": "ai-full"},
+    {"front": "Q4", "back": "A4", "source": "ai-full"},
+    {"front": "Q5", "back": "A5", "source": "ai-full"},
+    {"front": "Q6", "back": "A6", "source": "ai-full"},
+    {"front": "Q7", "back": "A7", "source": "ai-full"},
+    {"front": "Q8", "back": "A8", "source": "ai-full"},
+    {"front": "Q9", "back": "A9", "source": "ai-full"},
+    {"front": "Q10", "back": "A10", "source": "ai-full"},
+    {"front": "Q11", "back": "A11", "source": "ai-full"},
+    {"front": "Q12", "back": "A12", "source": "ai-full"},
+    {"front": "Q13", "back": "A13", "source": "ai-full"},
+    {"front": "Q14", "back": "A14", "source": "ai-full"},
+    {"front": "Q15", "back": "A15", "source": "ai-full"},
+    {"front": "Q16", "back": "A16", "source": "ai-full"},
+    {"front": "Q17", "back": "A17", "source": "ai-full"},
+    {"front": "Q18", "back": "A18", "source": "ai-full"},
+    {"front": "Q19", "back": "A19", "source": "ai-full"},
+    {"front": "Q20", "back": "A20", "source": "ai-full"},
+    {"front": "Q21", "back": "A21", "source": "ai-full"},
+    {"front": "Q22", "back": "A22", "source": "ai-full"},
+    {"front": "Q23", "back": "A23", "source": "ai-full"},
+    {"front": "Q24", "back": "A24", "source": "ai-full"},
+    {"front": "Q25", "back": "A25", "source": "ai-full"},
+    {"front": "Q26", "back": "A26", "source": "ai-full"},
+    {"front": "Q27", "back": "A27", "source": "ai-full"},
+    {"front": "Q28", "back": "A28", "source": "ai-full"},
+    {"front": "Q29", "back": "A29", "source": "ai-full"},
+    {"front": "Q30", "back": "A30", "source": "ai-full"},
+    {"front": "Q31", "back": "A31", "source": "ai-full"},
+    {"front": "Q32", "back": "A32", "source": "ai-full"},
+    {"front": "Q33", "back": "A33", "source": "ai-full"},
+    {"front": "Q34", "back": "A34", "source": "ai-full"},
+    {"front": "Q35", "back": "A35", "source": "ai-full"},
+    {"front": "Q36", "back": "A36", "source": "ai-full"},
+    {"front": "Q37", "back": "A37", "source": "ai-full"},
+    {"front": "Q38", "back": "A38", "source": "ai-full"},
+    {"front": "Q39", "back": "A39", "source": "ai-full"},
+    {"front": "Q40", "back": "A40", "source": "ai-full"},
+    {"front": "Q41", "back": "A41", "source": "ai-full"},
+    {"front": "Q42", "back": "A42", "source": "ai-full"},
+    {"front": "Q43", "back": "A43", "source": "ai-full"},
+    {"front": "Q44", "back": "A44", "source": "ai-full"},
+    {"front": "Q45", "back": "A45", "source": "ai-full"},
+    {"front": "Q46", "back": "A46", "source": "ai-full"},
+    {"front": "Q47", "back": "A47", "source": "ai-full"},
+    {"front": "Q48", "back": "A48", "source": "ai-full"},
+    {"front": "Q49", "back": "A49", "source": "ai-full"},
+    {"front": "Q50", "back": "A50", "source": "ai-full"},
+    {"front": "Q51", "back": "A51", "source": "ai-full"}
+  ]
+}
+
+### 12.3 Maximum Length Front Text (200 characters)
+POST {{baseUrl}}/api/flashcards HTTP/1.1
+Content-Type: application/json
+
+{
+  "front": "12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890",
+  "back": "Exactly 200 characters in front"
+}
+
+### 12.4 Maximum Length Back Text (500 characters)
+POST {{baseUrl}}/api/flashcards HTTP/1.1
+Content-Type: application/json
+
+{
+  "front": "Max back length test",
+  "back": "12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890"
+}
+
+###############################################################################
+# 6. UNICODE & SPECIAL CHARACTERS TESTS
+###############################################################################
+
+### 13.1 Unicode Characters in Flashcard
+POST {{baseUrl}}/api/flashcards HTTP/1.1
+Content-Type: application/json
+
+{
+  "front": "What is 你好?",
+  "back": "Hello in Chinese (Mandarin) 🇨🇳"
+}
+
+### 13.2 Special Characters and Emojis
+POST {{baseUrl}}/api/flashcards HTTP/1.1
+Content-Type: application/json
+
+{
+  "front": "Math symbols: ∑∫∂∇∞≈≠±×÷",
+  "back": "Various emojis: 😀🎉🚀💡🔥⭐✨"
+}
+
+### 13.3 Mixed Languages
+POST {{baseUrl}}/api/flashcards HTTP/1.1
+Content-Type: application/json
+
+{
+  "front": "Multilingual: Hello, Bonjour, Hola, Привет, مرحبا, こんにちは",
+  "back": "Greetings in English, French, Spanish, Russian, Arabic, and Japanese"
+}
+
+###############################################################################
+# END OF TESTS
+###############################################################################

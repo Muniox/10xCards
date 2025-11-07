@@ -14,6 +14,7 @@ For initial development and manual testing, authentication and authorization are
 ### 1.1 List Flashcards - GET /api/flashcards
 
 #### Request Details
+
 - **HTTP Method**: GET
 - **URL Pattern**: `/api/flashcards`
 - **Authentication**: None (disabled for manual testing)
@@ -24,12 +25,15 @@ For initial development and manual testing, authentication and authorization are
   - `generation_id` (number, optional)
 
 #### Types Used
+
 - **Response**: `PaginatedFlashcardsResponse`
 - **DTO**: `FlashcardDTO`
 - **Error**: `ErrorResponse`
 
 #### Response Details
+
 - **Success (200)**:
+
 ```json
 {
   "data": [FlashcardDTO[]],
@@ -41,9 +45,11 @@ For initial development and manual testing, authentication and authorization are
   }
 }
 ```
+
 - **Error Responses**: 400 (invalid params)
 
 #### Data Flow
+
 1. Extract query parameters from request URL
 2. Validate parameters using Zod schema
 3. Use hardcoded test `user_id` (e.g., "00000000-0000-0000-0000-000000000000")
@@ -60,6 +66,7 @@ For initial development and manual testing, authentication and authorization are
 9. Return paginated response
 
 #### Security Considerations (for later implementation)
+
 - ⚠️ Currently using hardcoded `user_id` for testing
 - RLS policies will be enabled after manual testing
 - Validate enum values for `source` parameter
@@ -67,15 +74,18 @@ For initial development and manual testing, authentication and authorization are
 - Never expose `user_id` in response DTOs
 
 #### Error Handling
+
 - **400 Bad Request**: Invalid query parameters (negative page, limit > 100, invalid source enum)
 - **500 Internal Error**: Database connection failures
 
 #### Performance Considerations
+
 - Use database indexes on `user_id`, `generation_id`, `source`
 - Limit max page size to 100 to prevent excessive data transfer
 - Consider client-side caching with cache invalidation on mutations
 
 #### Implementation Steps
+
 1. Create `/src/pages/api/flashcards.ts` with `export const prerender = false`
 2. Create GET handler function
 3. Define Zod schema for query parameter validation
@@ -93,6 +103,7 @@ For initial development and manual testing, authentication and authorization are
 ### 1.2 Get Single Flashcard - GET /api/flashcards/:id
 
 #### Request Details
+
 - **HTTP Method**: GET
 - **URL Pattern**: `/api/flashcards/[id]`
 - **Authentication**: None (disabled for manual testing)
@@ -100,14 +111,17 @@ For initial development and manual testing, authentication and authorization are
   - `id` (number, required)
 
 #### Types Used
+
 - **Response**: `FlashcardDTO`
 - **Error**: `ErrorResponse`
 
 #### Response Details
+
 - **Success (200)**: Single `FlashcardDTO` object
 - **Error Responses**: 400 (invalid ID), 404 (not found)
 
 #### Data Flow
+
 1. Extract `id` from URL parameters (`context.params.id`)
 2. Parse and validate `id` as positive integer
 3. Use hardcoded test `user_id`
@@ -117,20 +131,24 @@ For initial development and manual testing, authentication and authorization are
 7. Return response
 
 #### Security Considerations (for later implementation)
+
 - ⚠️ Currently using hardcoded `user_id` for testing
 - RLS will ensure users can only access their own flashcards
 - Validate `id` is a positive integer to prevent injection
 
 #### Error Handling
+
 - **400 Bad Request**: Invalid ID format (non-numeric, negative)
 - **404 Not Found**: Flashcard doesn't exist
 - **500 Internal Error**: Database errors
 
 #### Performance Considerations
+
 - Single row query with primary key lookup (very fast)
 - Use RLS index on `user_id`
 
 #### Implementation Steps
+
 1. Create `/src/pages/api/flashcards/[id].ts`
 2. Create GET handler
 3. Extract and validate `id` parameter
@@ -145,10 +163,12 @@ For initial development and manual testing, authentication and authorization are
 ### 1.3 Create Manual Flashcard - POST /api/flashcards
 
 #### Request Details
+
 - **HTTP Method**: POST
 - **URL Pattern**: `/api/flashcards`
 - **Authentication**: None (disabled for manual testing)
 - **Request Body**:
+
 ```json
 {
   "front": "string (1-200 chars)",
@@ -157,15 +177,18 @@ For initial development and manual testing, authentication and authorization are
 ```
 
 #### Types Used
+
 - **Request**: `CreateFlashcardCommand`
 - **Response**: `FlashcardDTO`
 - **Error**: `ErrorResponse`
 
 #### Response Details
+
 - **Success (201)**: Created `FlashcardDTO`
 - **Error Responses**: 400 (validation), 422 (invalid format)
 
 #### Data Flow
+
 1. Parse request body as JSON
 2. Validate using Zod schema (CreateFlashcardCommand)
 3. Use hardcoded test `user_id`
@@ -178,20 +201,24 @@ For initial development and manual testing, authentication and authorization are
 5. Return created flashcard as `FlashcardDTO`
 
 #### Security Considerations (for later implementation)
+
 - ⚠️ Currently using hardcoded `user_id` for testing
 - Sanitize front/back content to prevent XSS
 - Validate string lengths server-side (don't trust client)
 
 #### Error Handling
+
 - **400 Bad Request**: Validation failures (empty strings, length exceeded)
 - **422 Unprocessable Entity**: Invalid JSON format
 - **500 Internal Error**: Database insert failures
 
 #### Performance Considerations
+
 - Single insert operation (fast)
 - Use database default values for timestamps
 
 #### Implementation Steps
+
 1. Add POST handler to `/src/pages/api/flashcards.ts`
 2. Define Zod schema for `CreateFlashcardCommand`
 3. Parse and validate request body
@@ -206,10 +233,12 @@ For initial development and manual testing, authentication and authorization are
 ### 1.4 Bulk Create Flashcards - POST /api/flashcards/bulk
 
 #### Request Details
+
 - **HTTP Method**: POST
 - **URL Pattern**: `/api/flashcards/bulk`
 - **Authentication**: None (disabled for manual testing)
 - **Request Body**:
+
 ```json
 {
   "generation_id": number,
@@ -224,21 +253,26 @@ For initial development and manual testing, authentication and authorization are
 ```
 
 #### Types Used
+
 - **Request**: `BulkCreateFlashcardsCommand`
 - **Response**: `BulkCreateFlashcardsResponse`
 - **Error**: `ErrorResponse`
 
 #### Response Details
+
 - **Success (201)**:
+
 ```json
 {
   "created_count": 2,
   "flashcards": [FlashcardDTO[]]
 }
 ```
+
 - **Error Responses**: 400 (validation), 404 (generation not found), 422 (invalid format)
 
 #### Data Flow
+
 1. Parse and validate request body
 2. Validate array length (1-50 items)
 3. Use hardcoded test `user_id`
@@ -253,24 +287,28 @@ For initial development and manual testing, authentication and authorization are
 10. Return created flashcards with count
 
 #### Security Considerations (for later implementation)
+
 - ⚠️ Currently using hardcoded `user_id` for testing
 - Validate source is only 'ai-full' or 'ai-edited' (not 'manual')
 - Use transaction to ensure atomicity
 - Sanitize all flashcard content
 
 #### Error Handling
+
 - **400 Bad Request**: Validation errors (invalid source, empty array, > 50 items)
 - **404 Not Found**: Generation ID doesn't exist
 - **422 Unprocessable Entity**: Invalid JSON structure
 - **500 Internal Error**: Transaction rollback on database errors
 
 #### Performance Considerations
+
 - Use bulk insert for all flashcards (single query)
 - Use database transaction for consistency
 - Update generation counts in same transaction
 - Limit to 50 flashcards per request to prevent excessive load
 
 #### Implementation Steps
+
 1. Create `/src/pages/api/flashcards/bulk.ts`
 2. Create POST handler
 3. Define Zod schema for `BulkCreateFlashcardsCommand`
@@ -287,11 +325,13 @@ For initial development and manual testing, authentication and authorization are
 ### 1.5 Update Flashcard - PATCH /api/flashcards/:id
 
 #### Request Details
+
 - **HTTP Method**: PATCH
 - **URL Pattern**: `/api/flashcards/[id]`
 - **Authentication**: None (disabled for manual testing)
 - **URL Parameters**: `id` (number)
 - **Request Body** (at least one required):
+
 ```json
 {
   "front": "string (1-200)",
@@ -300,15 +340,18 @@ For initial development and manual testing, authentication and authorization are
 ```
 
 #### Types Used
+
 - **Request**: `UpdateFlashcardCommand`
 - **Response**: `FlashcardDTO`
 - **Error**: `ErrorResponse`
 
 #### Response Details
+
 - **Success (200)**: Updated `FlashcardDTO`
 - **Error Responses**: 400 (validation, no fields), 404 (not found), 422 (invalid format)
 
 #### Data Flow
+
 1. Extract `id` from URL
 2. Parse and validate request body
 3. Validate at least one field is provided
@@ -322,22 +365,26 @@ For initial development and manual testing, authentication and authorization are
 9. Return updated flashcard
 
 #### Security Considerations
+
 - RLS ensures user can only update their own flashcards
 - Validate partial update (at least one field required)
 - Sanitize content to prevent XSS
 - Return 404 for unauthorized access (don't reveal existence)
 
 #### Error Handling
+
 - **400 Bad Request**: No fields provided, validation failures
 - **404 Not Found**: Flashcard doesn't exist or unauthorized
 - **422 Unprocessable Entity**: Invalid JSON
 - **500 Internal Error**: Database update failures
 
 #### Performance Considerations
+
 - Single row update with primary key
 - Database trigger handles `updated_at` automatically
 
 #### Implementation Steps
+
 1. Add PATCH handler to `/src/pages/api/flashcards/[id].ts`
 2. Define Zod schema for `UpdateFlashcardCommand` with partial validation
 3. Extract and validate `id` and request body
@@ -353,19 +400,23 @@ For initial development and manual testing, authentication and authorization are
 ### 1.6 Delete Flashcard - DELETE /api/flashcards/:id
 
 #### Request Details
+
 - **HTTP Method**: DELETE
 - **URL Pattern**: `/api/flashcards/[id]`
 - **Authentication**: None (disabled for manual testing)
 - **URL Parameters**: `id` (number)
 
 #### Types Used
+
 - **Error**: `ErrorResponse`
 
 #### Response Details
+
 - **Success (204)**: Empty response body
 - **Error Responses**: 400 (invalid ID), 404 (not found)
 
 #### Data Flow
+
 1. Extract and validate `id` from URL
 2. Get authenticated user
 3. Delete flashcard where `id` AND `user_id = auth.uid()`
@@ -373,19 +424,23 @@ For initial development and manual testing, authentication and authorization are
 5. Return 204 No Content
 
 #### Security Considerations
+
 - RLS prevents deleting other users' flashcards
 - Return 404 for both non-existent and unauthorized (no info leakage)
 - Cascade behavior: `generation_id` has `ON DELETE SET NULL`
 
 #### Error Handling
+
 - **400 Bad Request**: Invalid ID format
 - **404 Not Found**: Flashcard doesn't exist or unauthorized
 - **500 Internal Error**: Database errors
 
 #### Performance Considerations
+
 - Single row deletion with primary key (fast)
 
 #### Implementation Steps
+
 1. Add DELETE handler to `/src/pages/api/flashcards/[id].ts`
 2. Extract and validate `id`
 3. Create service function `deleteFlashcard(userId, flashcardId)`
@@ -399,11 +454,13 @@ For initial development and manual testing, authentication and authorization are
 ### 2.1 Generate Flashcard Suggestions - POST /api/generations
 
 #### Request Details
+
 - **HTTP Method**: POST
 - **URL Pattern**: `/api/generations`
 - **Authentication**: None (disabled for manual testing)
 - **Rate Limit**: Disabled for manual testing
 - **Request Body**:
+
 ```json
 {
   "source_text": "string (1000-10000 chars)",
@@ -412,12 +469,15 @@ For initial development and manual testing, authentication and authorization are
 ```
 
 #### Types Used
+
 - **Request**: `GenerateFlashcardsCommand`
 - **Response**: `GenerationResultDTO`
 - **Error**: `ErrorResponse`
 
 #### Response Details
+
 - **Success (200)**:
+
 ```json
 {
   "generation_id": 46,
@@ -433,9 +493,11 @@ For initial development and manual testing, authentication and authorization are
   "created_at": "2025-01-15T11:15:00Z"
 }
 ```
+
 - **Error Responses**: 400 (text length), 422 (invalid format), 429 (rate limit), 500 (AI failure), 503 (service unavailable)
 
 #### Data Flow
+
 1. Check rate limit (handled by middleware)
 2. Parse and validate request body
 3. Validate `source_text` length (1000-10000)
@@ -456,6 +518,7 @@ For initial development and manual testing, authentication and authorization are
 14. On error: Log to `generation_error_logs` and return appropriate error
 
 #### Security Considerations
+
 - Rate limit enforced by middleware (10/hour per IP)
 - Validate text length to prevent excessive API costs
 - Store API key in environment variables (never expose)
@@ -463,6 +526,7 @@ For initial development and manual testing, authentication and authorization are
 - Sanitize AI response before returning
 
 #### Error Handling
+
 - **400 Bad Request**: Text length outside 1000-10000 range
 - **422 Unprocessable Entity**: Invalid JSON format
 - **429 Too Many Requests**: Rate limit exceeded (10/hour)
@@ -471,17 +535,20 @@ For initial development and manual testing, authentication and authorization are
 
 **Error Logging** (for AI failures):
 Insert into `generation_error_logs`:
+
 - `user_id`, `model`, `source_text_hash`, `source_text_length`
 - `error_code`, `error_message`
 - `created_at`
 
 #### Performance Considerations
+
 - AI API call is the primary bottleneck (3-10 seconds typical)
 - Use streaming if OpenRouter supports it for better UX
 - Consider implementing request queuing for high load
 - Cache generation results by `source_text_hash` (optional)
 
 #### Implementation Steps
+
 1. Create `/src/pages/api/generations.ts`
 2. Create POST handler
 3. Define Zod schema for `GenerateFlashcardsCommand`
@@ -501,6 +568,7 @@ Insert into `generation_error_logs`:
 ### 2.2 List Generations - GET /api/generations
 
 #### Request Details
+
 - **HTTP Method**: GET
 - **URL Pattern**: `/api/generations`
 - **Authentication**: None (disabled for manual testing)
@@ -509,21 +577,26 @@ Insert into `generation_error_logs`:
   - `limit` (number, optional, default: 20, min: 1, max: 100)
 
 #### Types Used
+
 - **Response**: `PaginatedGenerationsResponse`
 - **DTO**: `GenerationDTO`
 - **Error**: `ErrorResponse`
 
 #### Response Details
+
 - **Success (200)**:
+
 ```json
 {
   "data": [GenerationDTO[]],
   "pagination": PaginationMeta
 }
 ```
+
 - **Error Responses**: 400 (invalid params), 401 (unauthorized)
 
 #### Data Flow
+
 1. Extract and validate query parameters
 2. Get authenticated user
 3. Query generations filtered by `user_id`
@@ -534,20 +607,24 @@ Insert into `generation_error_logs`:
 8. Return paginated response
 
 #### Security Considerations
+
 - RLS enforces `user_id` filter
 - Omit sensitive fields (`source_text_hash`, `updated_at`) from response
 - Validate pagination parameters
 
 #### Error Handling
+
 - **400 Bad Request**: Invalid query parameters
 - **401 Unauthorized**: Not authenticated
 - **500 Internal Error**: Database errors
 
 #### Performance Considerations
+
 - Use index on `user_id` and `created_at` for sorting
 - Limit max page size to 100
 
 #### Implementation Steps
+
 1. Add GET handler to `/src/pages/api/generations.ts`
 2. Define query parameter validation schema
 3. Create service function `listGenerations(userId, pagination)`
@@ -561,6 +638,7 @@ Insert into `generation_error_logs`:
 ### 2.3 Get Generation Statistics - GET /api/generations/statistics
 
 #### Request Details
+
 - **HTTP Method**: GET
 - **URL Pattern**: `/api/generations/statistics`
 - **Authentication**: None (disabled for manual testing)
@@ -568,11 +646,14 @@ Insert into `generation_error_logs`:
   - `period` (string, optional, enum: 'week' | 'month' | 'all', default: 'all')
 
 #### Types Used
+
 - **Response**: `GenerationStatisticsDTO`
 - **Error**: `ErrorResponse`
 
 #### Response Details
+
 - **Success (200)**:
+
 ```json
 {
   "total_generations": 10,
@@ -587,9 +668,11 @@ Insert into `generation_error_logs`:
   "period": "all"
 }
 ```
+
 - **Error Responses**: 400 (invalid period), 401 (unauthorized)
 
 #### Data Flow
+
 1. Extract and validate `period` parameter
 2. Get authenticated user
 3. Calculate date filter based on period:
@@ -610,20 +693,24 @@ Insert into `generation_error_logs`:
 6. Return statistics
 
 #### Security Considerations
+
 - RLS filters statistics to current user only
 - Validate period enum to prevent injection
 
 #### Error Handling
+
 - **400 Bad Request**: Invalid period parameter
 - **401 Unauthorized**: Not authenticated
 - **500 Internal Error**: Aggregation query failures
 
 #### Performance Considerations
+
 - Aggregation queries can be expensive with many records
 - Consider caching results per user/period
 - Use indexes on `user_id` and `created_at`
 
 #### Implementation Steps
+
 1. Create `/src/pages/api/generations/statistics.ts`
 2. Create GET handler
 3. Validate `period` parameter with Zod enum
@@ -644,6 +731,7 @@ Insert into `generation_error_logs`:
 **Test User ID**: `"00000000-0000-0000-0000-000000000000"`
 
 **Usage**:
+
 ```typescript
 // In each endpoint handler
 const TEST_USER_ID = "00000000-0000-0000-0000-000000000000";
@@ -665,6 +753,7 @@ export async function GET(context: APIContext) {
 **Status**: ⚠️ Disabled for manual testing phase
 
 **Future Implementation**:
+
 - Will be implemented in `src/middleware/index.ts` or `src/lib/services/rate-limit.service.ts`
 - Algorithm: Sliding window with in-memory storage (or Redis for production)
 - Planned limits:
@@ -672,6 +761,7 @@ export async function GET(context: APIContext) {
   - Other endpoints: 100 requests per minute per IP
 
 **Future Implementation Pattern**:
+
 ```typescript
 interface RateLimitConfig {
   max: number;
@@ -680,15 +770,16 @@ interface RateLimitConfig {
 
 const rateLimitStore = new Map<string, { count: number; reset: number }>();
 
-function checkRateLimit(ip: string, path: string): {
+function checkRateLimit(
+  ip: string,
+  path: string
+): {
   allowed: boolean;
   remaining: number;
   reset: number;
   limit: number;
 } {
-  const config: RateLimitConfig = path.includes('/generations')
-    ? { max: 10, window: 3600 }
-    : { max: 100, window: 60 };
+  const config: RateLimitConfig = path.includes("/generations") ? { max: 10, window: 3600 } : { max: 100, window: 60 };
 
   const key = `${ip}:${path}`;
   const now = Math.floor(Date.now() / 1000);
@@ -697,13 +788,13 @@ function checkRateLimit(ip: string, path: string): {
   if (!stored || now > stored.reset) {
     rateLimitStore.set(key, {
       count: 1,
-      reset: now + config.window
+      reset: now + config.window,
     });
     return {
       allowed: true,
       remaining: config.max - 1,
       reset: now + config.window,
-      limit: config.max
+      limit: config.max,
     };
   }
 
@@ -712,7 +803,7 @@ function checkRateLimit(ip: string, path: string): {
       allowed: false,
       remaining: 0,
       reset: stored.reset,
-      limit: config.max
+      limit: config.max,
     };
   }
 
@@ -721,7 +812,7 @@ function checkRateLimit(ip: string, path: string): {
     allowed: true,
     remaining: config.max - stored.count,
     reset: stored.reset,
-    limit: config.max
+    limit: config.max,
   };
 }
 ```
@@ -750,25 +841,29 @@ const flashcardContentSchema = z.object({
 });
 
 // Flashcard source
-const flashcardSourceSchema = z.enum(['ai-full', 'ai-edited', 'manual']);
+const flashcardSourceSchema = z.enum(["ai-full", "ai-edited", "manual"]);
 
 // Create flashcard
 const createFlashcardSchema = flashcardContentSchema;
 
 // Update flashcard
-const updateFlashcardSchema = flashcardContentSchema.partial().refine(
-  (data) => data.front !== undefined || data.back !== undefined,
-  { message: "At least one field must be provided" }
-);
+const updateFlashcardSchema = flashcardContentSchema
+  .partial()
+  .refine((data) => data.front !== undefined || data.back !== undefined, {
+    message: "At least one field must be provided",
+  });
 
 // Bulk create
 const bulkCreateSchema = z.object({
   generation_id: z.number().int().positive(),
-  flashcards: z.array(
-    flashcardContentSchema.extend({
-      source: z.enum(['ai-full', 'ai-edited']),
-    })
-  ).min(1).max(50),
+  flashcards: z
+    .array(
+      flashcardContentSchema.extend({
+        source: z.enum(["ai-full", "ai-edited"]),
+      })
+    )
+    .min(1)
+    .max(50),
 });
 
 // Generate flashcards
@@ -778,10 +873,11 @@ const generateFlashcardsSchema = z.object({
 });
 
 // Period filter
-const periodSchema = z.enum(['week', 'month', 'all']).optional().default('all');
+const periodSchema = z.enum(["week", "month", "all"]).optional().default("all");
 ```
 
 **Validation Pattern**:
+
 ```typescript
 export async function POST(context: APIContext) {
   try {
@@ -790,16 +886,19 @@ export async function POST(context: APIContext) {
     // Process validated data
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return new Response(JSON.stringify({
-        error: {
-          code: "VALIDATION_ERROR",
-          message: "Invalid input data",
-          details: error.errors
+      return new Response(
+        JSON.stringify({
+          error: {
+            code: "VALIDATION_ERROR",
+            message: "Invalid input data",
+            details: error.errors,
+          },
+        }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
         }
-      }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" }
-      });
+      );
     }
     throw error;
   }
@@ -811,6 +910,7 @@ export async function POST(context: APIContext) {
 ### 3.4 Error Response Format
 
 **Standard Structure**:
+
 ```json
 {
   "error": {
@@ -824,6 +924,7 @@ export async function POST(context: APIContext) {
 ```
 
 **Error Codes**:
+
 - `VALIDATION_ERROR` (400): Input validation failures
 - `UNAUTHORIZED` (401): Missing or invalid authentication
 - `NOT_FOUND` (404): Resource doesn't exist
@@ -832,19 +933,23 @@ export async function POST(context: APIContext) {
 - `INTERNAL_ERROR` (500): Unexpected server errors
 
 **Helper Function**:
+
 ```typescript
 function errorResponse(
-  code: ErrorResponse['error']['code'],
+  code: ErrorResponse["error"]["code"],
   message: string,
   status: number,
   details?: Record<string, unknown>
 ): Response {
-  return new Response(JSON.stringify({
-    error: { code, message, details }
-  }), {
-    status,
-    headers: { "Content-Type": "application/json" }
-  });
+  return new Response(
+    JSON.stringify({
+      error: { code, message, details },
+    }),
+    {
+      status,
+      headers: { "Content-Type": "application/json" },
+    }
+  );
 }
 ```
 
@@ -876,6 +981,7 @@ function errorResponse(
    - `getRateLimitConfig(path)`
 
 **Service Pattern**:
+
 ```typescript
 // flashcard.service.ts
 import type { SupabaseClient } from "../db/supabase.client";
@@ -974,18 +1080,21 @@ EXECUTE FUNCTION update_updated_at_column();
 ## 5. Deployment Checklist (Development Phase)
 
 ### 5.1 Environment Variables
+
 - [ ] `SUPABASE_URL`
 - [ ] `SUPABASE_ANON_KEY`
 - [ ] `OPENROUTER_API_KEY`
 - [ ] `DEFAULT_AI_MODEL` (optional)
 
 ### 5.2 Database Setup
+
 - [ ] Run migrations to create tables
 - [ ] Create indexes
 - [ ] Create triggers
 - [ ] ⚠️ RLS policies - SKIP for now (will be added after manual testing)
 
 ### 5.3 Manual Testing Preparation
+
 - [ ] Create test user record with `user_id = "00000000-0000-0000-0000-000000000000"`
 - [ ] Verify API keys are not exposed
 - [ ] Test XSS prevention with malicious input
@@ -1039,6 +1148,7 @@ EXECUTE FUNCTION update_updated_at_column();
 ## 7. Key Implementation Notes
 
 ### 7.1 Astro API Route Structure (Development Phase)
+
 ```typescript
 // src/pages/api/flashcards.ts
 export const prerender = false;
@@ -1063,6 +1173,7 @@ export async function POST(context: APIContext) {
 ```
 
 ### 7.2 Supabase Client Usage
+
 ```typescript
 // Get Supabase client from context.locals
 const supabase = context.locals.supabase as SupabaseClient;
@@ -1075,6 +1186,7 @@ const TEST_USER_ID = "00000000-0000-0000-0000-000000000000";
 ```
 
 ### 7.3 TypeScript Type Safety
+
 ```typescript
 // Use SupabaseClient from our custom type
 import type { SupabaseClient } from "../../db/supabase.client";
@@ -1084,6 +1196,7 @@ import type { SupabaseClient } from "../../db/supabase.client";
 ```
 
 ### 7.4 Content Sanitization
+
 ```typescript
 // Implement XSS prevention for user-generated content
 import DOMPurify from "isomorphic-dompurify";
@@ -1097,6 +1210,7 @@ function sanitizeFlashcard(card: { front: string; back: string }) {
 ```
 
 ### 7.5 Middleware Setup (Development Phase)
+
 ```typescript
 // src/middleware/index.ts
 import { defineMiddleware } from "astro:middleware";
@@ -1104,17 +1218,13 @@ import { createServerClient } from "@supabase/ssr";
 
 export const onRequest = defineMiddleware(async (context, next) => {
   // Create Supabase client without authentication checks
-  const supabase = createServerClient(
-    import.meta.env.SUPABASE_URL,
-    import.meta.env.SUPABASE_ANON_KEY,
-    {
-      cookies: {
-        get: (key) => context.cookies.get(key)?.value,
-        set: (key, value, options) => context.cookies.set(key, value, options),
-        remove: (key, options) => context.cookies.delete(key, options),
-      },
-    }
-  );
+  const supabase = createServerClient(import.meta.env.SUPABASE_URL, import.meta.env.SUPABASE_ANON_KEY, {
+    cookies: {
+      get: (key) => context.cookies.get(key)?.value,
+      set: (key, value, options) => context.cookies.set(key, value, options),
+      remove: (key, options) => context.cookies.delete(key, options),
+    },
+  });
 
   // Attach Supabase client to context.locals
   context.locals.supabase = supabase;
@@ -1131,12 +1241,14 @@ export const onRequest = defineMiddleware(async (context, next) => {
 This implementation plan is adapted for the **development and manual testing phase**. Key differences from production:
 
 ✅ **Enabled**:
+
 - Validation with Zod schemas
 - Error handling and proper status codes
 - Service layer architecture
 - Database operations via Supabase
 
 ⚠️ **Disabled/Modified**:
+
 - Authentication and authorization (using hardcoded `TEST_USER_ID`)
 - RLS policies (will be enabled later)
 - Rate limiting (will be implemented later)
