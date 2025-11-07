@@ -1,4 +1,13 @@
 {
   "enableAllProjectMcpServers": true,
-  "enabledMcpjsonServers": ["chrome-devtools", "gemini-cli"]
+  "enabledMcpjsonServers": ["chrome-devtools", "gemini-cli"],
+  "permissions": {
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./secrets/**)",
+      "Read(./config/credentials.json)",
+      "Read(./build)"
+    ]
+  }
 }
