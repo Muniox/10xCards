@@ -1,0 +1,32 @@
+---
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+---
+
+<nav class="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+  <div class="container flex h-16 items-center justify-between">
+    <a
+      href="/"
+      aria-label="10xCards - Strona główna"
+      class="flex items-center gap-2 text-lg font-semibold transition-colors hover:text-primary"
+    >
+      <span class="text-2xl" aria-hidden="true">🎴</span>
+      <span>10xCards</span>
+    </a>
+
+    <div class="flex items-center gap-2">
+      <a
+        href="/login"
+        class={cn(buttonVariants({ variant: "ghost" }))}
+      >
+        Zaloguj się
+      </a>
+      <a
+        href="/register"
+        class={cn(buttonVariants({ variant: "default" }))}
+      >
+        Zarejestruj się
+      </a>
+    </div>
+  </div>
+</nav>

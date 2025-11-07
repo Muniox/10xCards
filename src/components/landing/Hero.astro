@@ -1,0 +1,46 @@
+---
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+---
+
+<section class="hero py-20 md:py-28 lg:py-32">
+  <div class="container">
+    <div class="mx-auto max-w-4xl text-center">
+      <div class="hero-content">
+        <h1 class="mb-6 text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
+          Twórz fiszki 10x szybciej z AI
+        </h1>
+        <p class="mx-auto mb-8 max-w-2xl text-lg text-muted-foreground sm:text-xl md:text-2xl">
+          Automatycznie generuj wysokiej jakości fiszki edukacyjne z dowolnego tekstu.
+          Ucz się efektywniej dzięki inteligentnym powtórkom.
+        </p>
+        <div class="cta-buttons flex flex-col gap-4 sm:flex-row sm:justify-center">
+          <a
+            href="/register"
+            class={cn(buttonVariants({ size: "lg", variant: "default" }), "text-base")}
+          >
+            Zacznij za darmo
+          </a>
+          <a
+            href="/login"
+            class={cn(buttonVariants({ size: "lg", variant: "outline" }), "text-base")}
+          >
+            Zaloguj się
+          </a>
+        </div>
+      </div>
+      <!-- Placeholder dla hero image - można dodać później -->
+      <!--
+      <div class="hero-image mt-12">
+        <Image
+          src={heroImage}
+          alt="Przykład interfejsu 10xCards z wygenerowanymi fiszkami"
+          loading="eager"
+          width={600}
+          height={400}
+        />
+      </div>
+      -->
+    </div>
+  </div>
+</section>

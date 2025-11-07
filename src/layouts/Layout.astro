@@ -4,18 +4,30 @@ import { Toaster } from "../components/ui/sonner";
 
 interface Props {
   title?: string;
+  description?: string;
 }
 
-const { title = "10x Astro Starter" } = Astro.props;
+const {
+  title = "10xCards - Twórz fiszki 10x szybciej z AI",
+  description = "Automatycznie generuj wysokiej jakości fiszki edukacyjne z dowolnego tekstu dzięki AI. Ucz się efektywniej z inteligentnym systemem powtórek opartym na spaced repetition."
+} = Astro.props;
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="pl" class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={description} />
+    <meta name="keywords" content="fiszki, AI, nauka, spaced repetition, edukacja, uczenie się, flashcards, powtórki" />
+
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+
     <title>{title}</title>
   </head>
   <body>
