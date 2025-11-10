@@ -17,9 +17,9 @@ import { generationStatisticsQuerySchema, type GenerationStatisticsQuery } from 
  */
 export async function GET(context: APIContext): Promise<Response> {
   try {
-    // Verify user authentication
-    const session = await context.locals.session;
-    if (!session?.user) {
+    // Verify user authentication (set by middleware)
+    const user = context.locals.user;
+    if (!user) {
       return unauthorizedError("Musisz być zalogowany");
     }
 
@@ -45,7 +45,7 @@ export async function GET(context: APIContext): Promise<Response> {
     }
 
     // Call service to get statistics
-    const result = await getGenerationStatistics(supabase, session.user.id, validated.period);
+    const result = await getGenerationStatistics(supabase, user.id, validated.period);
 
     // Return successful response
     return new Response(JSON.stringify(result), {

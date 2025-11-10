@@ -3,7 +3,7 @@ import type {
   GenerationResultDTO,
   BulkCreateFlashcardsCommand,
   FlashcardForBulkCreate,
-  BulkCreateFlashcardsResponse
+  BulkCreateFlashcardsResponse,
 } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -45,16 +45,17 @@ export default function FlashcardGeneratorView() {
 
   // Handler dla aktualizacji sugestii
   const handleUpdateSuggestion = (updatedSuggestion: SuggestionViewModel) => {
-    setSuggestions((prev) =>
-      prev.map((s) => (s.id === updatedSuggestion.id ? updatedSuggestion : s))
-    );
+    setSuggestions((prev) => prev.map((s) => (s.id === updatedSuggestion.id ? updatedSuggestion : s)));
   };
 
   // Handler dla zaznaczania/odznaczania sugestii
   const handleToggleSelect = (id: string) => {
-    setSuggestions((prev) =>
-      prev.map((s) => (s.id === id ? { ...s, isSelected: !s.isSelected } : s))
-    );
+    setSuggestions((prev) => prev.map((s) => (s.id === id ? { ...s, isSelected: !s.isSelected } : s)));
+  };
+
+  // Handler dla usuwania sugestii
+  const handleDeleteSuggestion = (id: string) => {
+    setSuggestions((prev) => prev.filter((s) => s.id !== id));
   };
 
   // Handler dla generowania fiszek
@@ -95,9 +96,7 @@ export default function FlashcardGeneratorView() {
     const selectedSuggestions = suggestions.filter((s) => s.isSelected);
     const flashcards: FlashcardForBulkCreate[] = selectedSuggestions.map((suggestion) => {
       // Sprawdzenie czy fiszka została zmodyfikowana
-      const wasEdited =
-        suggestion.front !== suggestion.originalFront ||
-        suggestion.back !== suggestion.originalBack;
+      const wasEdited = suggestion.front !== suggestion.originalFront || suggestion.back !== suggestion.originalBack;
 
       return {
         front: suggestion.front,
@@ -136,7 +135,7 @@ export default function FlashcardGeneratorView() {
   };
 
   return (
-    <div className="container mx-auto max-w-4xl p-6">
+    <div className="container mx-auto max-w-6xl p-6">
       <h1 className="text-3xl font-bold mb-6">Generator Fiszek</h1>
 
       {/* Pole tekstowe na tekst źródłowy */}
@@ -149,15 +148,11 @@ export default function FlashcardGeneratorView() {
           value={sourceText}
           onChange={(e) => setSourceText(e.target.value)}
           placeholder="Wklej tutaj tekst, z którego chcesz wygenerować fiszki (1000-10000 znaków)..."
-          className="min-h-[200px]"
+          className="h-[300px] resize-none overflow-y-auto"
           disabled={generateFetch.loading}
         />
         <div className="flex justify-between items-center mt-2">
-          <span
-            className={`text-sm ${
-              isTextValid ? "text-green-600" : "text-gray-500"
-            }`}
-          >
+          <span className={`text-sm ${isTextValid ? "text-green-600" : "text-gray-500"}`}>
             {textLength} / 10000 znaków
           </span>
           {!isTextValid && textLength > 0 && (
@@ -172,11 +167,7 @@ export default function FlashcardGeneratorView() {
 
       {/* Przycisk "Generuj" */}
       <div className="mb-6">
-        <Button
-          onClick={handleGenerate}
-          disabled={!isTextValid || generateFetch.loading}
-          className="w-full"
-        >
+        <Button onClick={handleGenerate} disabled={!isTextValid || generateFetch.loading} className="w-full">
           {generateFetch.loading ? "Generowanie..." : "Generuj fiszki"}
         </Button>
       </div>
@@ -188,6 +179,7 @@ export default function FlashcardGeneratorView() {
         error={generateFetch.error}
         onUpdate={handleUpdateSuggestion}
         onToggleSelect={handleToggleSelect}
+        onDelete={handleDeleteSuggestion}
       />
 
       {/* Przycisk "Zapisz wybrane" - widoczny tylko gdy są sugestie i nie jest ładowanie */}
@@ -200,7 +192,7 @@ export default function FlashcardGeneratorView() {
           >
             {saveFetch.loading
               ? "Zapisywanie..."
-              : `Zapisz wybrane (${suggestions.filter(s => s.isSelected).length})`}
+              : `Zapisz wybrane (${suggestions.filter((s) => s.isSelected).length})`}
           </Button>
         </div>
       )}

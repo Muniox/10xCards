@@ -1,6 +1,9 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Save, Edit, Trash2 } from "lucide-react";
+import { useState } from "react";
 
 /**
  * ViewModel dla pojedynczej sugestii fiszki w UI.
@@ -18,13 +21,12 @@ interface SuggestionItemProps {
   suggestion: SuggestionViewModel;
   onUpdate: (updatedSuggestion: SuggestionViewModel) => void;
   onToggleSelect: (id: string) => void;
+  onDelete: (id: string) => void;
 }
 
-export default function SuggestionItem({
-  suggestion,
-  onUpdate,
-  onToggleSelect,
-}: SuggestionItemProps) {
+export default function SuggestionItem({ suggestion, onUpdate, onToggleSelect, onDelete }: SuggestionItemProps) {
+  const [isEditing, setIsEditing] = useState(false);
+
   const handleFrontChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     onUpdate({
       ...suggestion,
@@ -45,14 +47,47 @@ export default function SuggestionItem({
     }
   };
 
+  const handleSave = () => {
+    setIsEditing(false);
+    // Toggle selection when saving
+    onToggleSelect(suggestion.id);
+  };
+
+  const handleDelete = () => {
+    onDelete(suggestion.id);
+  };
+
   // Sprawdzenie czy fiszka została zmodyfikowana
-  const wasEdited =
-    suggestion.front !== suggestion.originalFront ||
-    suggestion.back !== suggestion.originalBack;
+  const wasEdited = suggestion.front !== suggestion.originalFront || suggestion.back !== suggestion.originalBack;
 
   return (
-    <Card className={suggestion.isSelected ? "border-primary" : ""}>
-      <CardHeader className="pb-3">
+    <Card className={`relative h-[450px] flex flex-col ${suggestion.isSelected ? "border-primary" : ""}`}>
+      {/* Action buttons in top right corner */}
+      <div className="absolute top-2 right-2 flex gap-1 z-10">
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={() => setIsEditing(!isEditing)}
+          title="Edytuj"
+          className="h-8 w-8 p-0"
+        >
+          <Edit className="h-4 w-4" />
+        </Button>
+        <Button size="sm" variant="ghost" onClick={handleSave} title="Zapisz" className="h-8 w-8 p-0">
+          <Save className="h-4 w-4" />
+        </Button>
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={handleDelete}
+          title="Usuń"
+          className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </div>
+
+      <CardHeader className="pb-3 pr-28">
         <div className="flex items-center space-x-2">
           <Checkbox
             id={`select-${suggestion.id}`}
@@ -73,12 +108,9 @@ export default function SuggestionItem({
           </label>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 flex-1">
         <div>
-          <label
-            htmlFor={`front-${suggestion.id}`}
-            className="block text-sm font-medium mb-2"
-          >
+          <label htmlFor={`front-${suggestion.id}`} className="block text-sm font-medium mb-2">
             Przód fiszki
           </label>
           <Textarea
@@ -86,15 +118,13 @@ export default function SuggestionItem({
             value={suggestion.front}
             onChange={handleFrontChange}
             placeholder="Pytanie lub pojęcie"
-            className="min-h-[80px]"
+            className="h-[120px] resize-none overflow-y-auto"
             aria-label="Przód fiszki"
+            disabled={!isEditing}
           />
         </div>
         <div>
-          <label
-            htmlFor={`back-${suggestion.id}`}
-            className="block text-sm font-medium mb-2"
-          >
+          <label htmlFor={`back-${suggestion.id}`} className="block text-sm font-medium mb-2">
             Tył fiszki
           </label>
           <Textarea
@@ -102,8 +132,9 @@ export default function SuggestionItem({
             value={suggestion.back}
             onChange={handleBackChange}
             placeholder="Odpowiedź lub definicja"
-            className="min-h-[80px]"
+            className="h-[120px] resize-none overflow-y-auto"
             aria-label="Tył fiszki"
+            disabled={!isEditing}
           />
         </div>
       </CardContent>
