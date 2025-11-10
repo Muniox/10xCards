@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Alert, AlertDescription } from "../ui/alert";
 import { loginSchema, type LoginFormData } from "@/lib/validation/auth.schemas";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, CheckCircle } from "lucide-react";
 
 export function LoginForm() {
   const [formData, setFormData] = useState<LoginFormData>({
@@ -13,7 +13,18 @@ export function LoginForm() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+  // Check for registration success parameter
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("registered") === "true") {
+      setSuccessMessage("Konto zostało utworzone pomyślnie! Możesz się teraz zalogować.");
+      // Remove the parameter from URL without reload
+      window.history.replaceState({}, "", "/login");
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -87,6 +98,13 @@ export function LoginForm() {
     <div className="w-full max-w-md mx-auto">
       <div className="bg-card rounded-lg border shadow-sm p-8">
         <h1 className="text-2xl font-bold text-center mb-6">Zaloguj się</h1>
+
+        {successMessage && (
+          <Alert className="mb-6 border-green-200 bg-green-50 text-green-900">
+            <CheckCircle className="h-4 w-4 text-green-600" />
+            <AlertDescription>{successMessage}</AlertDescription>
+          </Alert>
+        )}
 
         {error && (
           <Alert variant="destructive" className="mb-6">

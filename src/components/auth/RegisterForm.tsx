@@ -56,8 +56,9 @@ export function RegisterForm() {
         return;
       }
 
-      // Przekierowanie po sukcesie (użytkownik automatycznie zalogowany)
-      window.location.href = "/app/dashboard";
+      // Przekierowanie do logowania po udanej rejestracji
+      // Dodaj parametr sukcesu do URL żeby pokazać komunikat na stronie logowania
+      window.location.href = "/login?registered=true";
     } catch (err) {
       setError("Brak połączenia z serwerem");
     } finally {
