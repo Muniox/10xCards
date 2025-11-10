@@ -172,6 +172,21 @@ export default function FlashcardGeneratorView() {
         </Button>
       </div>
 
+      {/* Nagłówek z przyciskiem zapisz - widoczny tylko gdy są sugestie i nie jest ładowanie */}
+      {suggestions.length > 0 && !generateFetch.loading && (
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-xl font-semibold">Propozycje fiszek ({suggestions.length})</h2>
+            <p className="text-sm text-gray-600">Zaznaczono: {suggestions.filter((s) => s.isSelected).length}</p>
+          </div>
+          <Button onClick={handleSaveSelected} disabled={!hasSelectedFlashcards || saveFetch.loading} size="lg">
+            {saveFetch.loading
+              ? "Zapisywanie..."
+              : `Zapisz wybrane (${suggestions.filter((s) => s.isSelected).length})`}
+          </Button>
+        </div>
+      )}
+
       {/* Lista sugestii z SuggestionList */}
       <SuggestionList
         suggestions={suggestions}
@@ -181,21 +196,6 @@ export default function FlashcardGeneratorView() {
         onToggleSelect={handleToggleSelect}
         onDelete={handleDeleteSuggestion}
       />
-
-      {/* Przycisk "Zapisz wybrane" - widoczny tylko gdy są sugestie i nie jest ładowanie */}
-      {suggestions.length > 0 && !generateFetch.loading && (
-        <div className="mt-6">
-          <Button
-            onClick={handleSaveSelected}
-            disabled={!hasSelectedFlashcards || saveFetch.loading}
-            className="w-full"
-          >
-            {saveFetch.loading
-              ? "Zapisywanie..."
-              : `Zapisz wybrane (${suggestions.filter((s) => s.isSelected).length})`}
-          </Button>
-        </div>
-      )}
     </div>
   );
 }
