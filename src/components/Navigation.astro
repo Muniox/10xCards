@@ -1,12 +1,17 @@
 ---
 // Navigation component - poziomy pasek nawigacyjny
 // Zawiera linki do głównych sekcji aplikacji
+import { UserMenu } from "./auth/UserMenu";
 
 interface Props {
   currentPath?: string;
 }
 
 const { currentPath = "" } = Astro.props;
+
+// Get user from middleware (locals.user is set by auth middleware)
+const { user } = Astro.locals;
+const userEmail = user?.email || "";
 
 // Funkcja do sprawdzania czy link jest aktywny
 const isActive = (path: string) => currentPath.startsWith(path);
@@ -25,7 +30,7 @@ const navLinks = [
     <div class="flex items-center justify-between h-16">
       <!-- Logo / Brand -->
       <div class="flex items-center">
-        <a href="/app/dashboard" class="flex items-center space-x-2 text-xl font-bold text-gray-900 hover:text-gray-700">
+        <a href="/" class="flex items-center space-x-2 text-xl font-bold text-gray-900 hover:text-gray-700">
           <span class="text-2xl">🎴</span>
           <span>10xCards</span>
         </a>
@@ -33,34 +38,28 @@ const navLinks = [
 
       <!-- Navigation Links - Desktop -->
       <div class="hidden md:flex items-center space-x-1">
-        {navLinks.map((link) => (
-          <a
-            href={link.href}
-            class={`
+        {
+          navLinks.map((link) => (
+            <a
+              href={link.href}
+              class={`
               flex items-center space-x-2 px-4 py-2 rounded-md text-sm font-medium transition-colors
-              ${isActive(link.href)
-                ? "bg-gray-100 text-gray-900"
-                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+              ${
+                isActive(link.href) ? "bg-gray-100 text-gray-900" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
               }
             `}
-            aria-current={isActive(link.href) ? "page" : undefined}
-          >
-            <span>{link.icon}</span>
-            <span>{link.label}</span>
-          </a>
-        ))}
+              aria-current={isActive(link.href) ? "page" : undefined}
+            >
+              <span>{link.icon}</span>
+              <span>{link.label}</span>
+            </a>
+          ))
+        }
       </div>
 
       <!-- User Menu - Desktop -->
       <div class="hidden md:flex items-center space-x-4">
-        <!-- Placeholder dla menu użytkownika -->
-        <button
-          type="button"
-          class="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-        >
-          <span>👤</span>
-          <span>Konto</span>
-        </button>
+        <UserMenu client:load userEmail={userEmail} />
       </div>
 
       <!-- Mobile menu button -->
@@ -75,7 +74,8 @@ const navLinks = [
           <span class="sr-only">Otwórz menu</span>
           <!-- Ikona hamburgera -->
           <svg class="block h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+            ></path>
           </svg>
         </button>
       </div>
@@ -85,32 +85,25 @@ const navLinks = [
   <!-- Mobile menu, show/hide based on menu state -->
   <div class="hidden md:hidden" id="mobile-menu">
     <div class="px-2 pt-2 pb-3 space-y-1">
-      {navLinks.map((link) => (
-        <a
-          href={link.href}
-          class={`
+      {
+        navLinks.map((link) => (
+          <a
+            href={link.href}
+            class={`
             flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium
-            ${isActive(link.href)
-              ? "bg-gray-100 text-gray-900"
-              : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-            }
+            ${isActive(link.href) ? "bg-gray-100 text-gray-900" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"}
           `}
-          aria-current={isActive(link.href) ? "page" : undefined}
-        >
-          <span>{link.icon}</span>
-          <span>{link.label}</span>
-        </a>
-      ))}
+            aria-current={isActive(link.href) ? "page" : undefined}
+          >
+            <span>{link.icon}</span>
+            <span>{link.label}</span>
+          </a>
+        ))
+      }
 
       <!-- User menu w mobile -->
       <div class="border-t border-gray-200 pt-2 mt-2">
-        <a
-          href="/app/settings"
-          class="flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-        >
-          <span>👤</span>
-          <span>Konto</span>
-        </a>
+        <UserMenu client:load userEmail={userEmail} />
       </div>
     </div>
   </div>
@@ -118,14 +111,14 @@ const navLinks = [
 
 <script>
   // Mobile menu toggle
-  const mobileMenuButton = document.getElementById('mobile-menu-button');
-  const mobileMenu = document.getElementById('mobile-menu');
+  const mobileMenuButton = document.getElementById("mobile-menu-button");
+  const mobileMenu = document.getElementById("mobile-menu");
 
   if (mobileMenuButton && mobileMenu) {
-    mobileMenuButton.addEventListener('click', () => {
-      const isExpanded = mobileMenuButton.getAttribute('aria-expanded') === 'true';
-      mobileMenuButton.setAttribute('aria-expanded', String(!isExpanded));
-      mobileMenu.classList.toggle('hidden');
+    mobileMenuButton.addEventListener("click", () => {
+      const isExpanded = mobileMenuButton.getAttribute("aria-expanded") === "true";
+      mobileMenuButton.setAttribute("aria-expanded", String(!isExpanded));
+      mobileMenu.classList.toggle("hidden");
     });
   }
 </script>
