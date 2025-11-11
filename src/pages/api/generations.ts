@@ -4,7 +4,13 @@ import type { APIContext } from "astro";
 import { z } from "zod";
 
 import type { SupabaseClient } from "../../db/supabase.client";
-import { aiServiceError, errorResponse, internalError, validationError } from "../../lib/helpers/error.helper";
+import {
+  aiServiceError,
+  errorResponse,
+  internalError,
+  unauthorizedError,
+  validationError,
+} from "../../lib/helpers/error.helper";
 import { generateFlashcards, listGenerations } from "../../lib/services/generation.service";
 import {
   generateFlashcardsSchema,
@@ -12,9 +18,6 @@ import {
   type GenerateFlashcardsInput,
   type ListGenerationsQuery,
 } from "../../lib/validation/schemas";
-
-// Hardcoded test user ID for manual testing phase
-const TEST_USER_ID = "00000000-0000-0000-0000-000000000000";
 
 /**
  * POST /api/generations
@@ -28,6 +31,12 @@ const TEST_USER_ID = "00000000-0000-0000-0000-000000000000";
  */
 export async function POST(context: APIContext): Promise<Response> {
   try {
+    // Verify user authentication
+    const user = context.locals.user;
+    if (!user) {
+      return unauthorizedError("Musisz być zalogowany");
+    }
+
     const supabase = context.locals.supabase as SupabaseClient;
 
     // Parse request body
@@ -54,7 +63,7 @@ export async function POST(context: APIContext): Promise<Response> {
     // Generate flashcards using service
     let result;
     try {
-      result = await generateFlashcards(supabase, TEST_USER_ID, validated.source_text, validated.model);
+      result = await generateFlashcards(supabase, user.id, validated.source_text, validated.model);
     } catch (error) {
       // Check if it's an AI service error
       if (error instanceof Error) {
@@ -94,6 +103,12 @@ export async function POST(context: APIContext): Promise<Response> {
  */
 export async function GET(context: APIContext): Promise<Response> {
   try {
+    // Verify user authentication
+    const user = context.locals.user;
+    if (!user) {
+      return unauthorizedError("Musisz być zalogowany");
+    }
+
     const supabase = context.locals.supabase as SupabaseClient;
 
     // Extract query parameters from URL
@@ -123,7 +138,7 @@ export async function GET(context: APIContext): Promise<Response> {
     };
 
     // Call service to get generations
-    const result = await listGenerations(supabase, TEST_USER_ID, pagination);
+    const result = await listGenerations(supabase, user.id, pagination);
 
     // Return successful response
     return new Response(JSON.stringify(result), {

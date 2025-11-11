@@ -4,12 +4,15 @@ import type { APIContext } from "astro";
 import { z } from "zod";
 
 import type { SupabaseClient } from "../../../db/supabase.client";
-import { errorResponse, internalError, notFoundError, validationError } from "../../../lib/helpers/error.helper";
+import {
+  errorResponse,
+  internalError,
+  notFoundError,
+  unauthorizedError,
+  validationError,
+} from "../../../lib/helpers/error.helper";
 import { bulkCreateFlashcards } from "../../../lib/services/flashcard.service";
 import { bulkCreateFlashcardsSchema, type BulkCreateFlashcardsInput } from "../../../lib/validation/schemas";
-
-// Hardcoded test user ID for manual testing phase
-const TEST_USER_ID = "00000000-0000-0000-0000-000000000000";
 
 /**
  * POST /api/flashcards/bulk
@@ -29,6 +32,12 @@ const TEST_USER_ID = "00000000-0000-0000-0000-000000000000";
  */
 export async function POST(context: APIContext): Promise<Response> {
   try {
+    // Verify user authentication
+    const user = context.locals.user;
+    if (!user) {
+      return unauthorizedError("Musisz być zalogowany");
+    }
+
     const supabase = context.locals.supabase as SupabaseClient;
 
     // Parse request body
@@ -55,7 +64,7 @@ export async function POST(context: APIContext): Promise<Response> {
     // Bulk create flashcards using service
     let result;
     try {
-      result = await bulkCreateFlashcards(supabase, TEST_USER_ID, validated);
+      result = await bulkCreateFlashcards(supabase, user.id, validated);
     } catch (error) {
       // Check if it's a "generation not found" error
       if (error instanceof Error && error.message === "Generation not found") {

@@ -1,0 +1,19 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { RegisterForm } from "@/components/auth/RegisterForm";
+
+// Sprawdzenie sesji - jeśli użytkownik jest już zalogowany, przekieruj do dashboardu
+const {
+  data: { session },
+} = await Astro.locals.supabase.auth.getSession();
+
+if (session) {
+  return Astro.redirect("/app/dashboard");
+}
+---
+
+<Layout title="Zarejestruj się - 10xCards">
+  <div class="flex min-h-screen items-center justify-center p-4">
+    <RegisterForm client:load />
+  </div>
+</Layout>

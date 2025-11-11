@@ -4,7 +4,7 @@ import type { APIContext } from "astro";
 import { z } from "zod";
 
 import type { SupabaseClient } from "../../db/supabase.client";
-import { errorResponse, internalError, validationError } from "../../lib/helpers/error.helper";
+import { errorResponse, internalError, unauthorizedError, validationError } from "../../lib/helpers/error.helper";
 import { listFlashcards, createManualFlashcard } from "../../lib/services/flashcard.service";
 import {
   listFlashcardsQuerySchema,
@@ -12,9 +12,6 @@ import {
   type ListFlashcardsQuery,
   type CreateFlashcardInput,
 } from "../../lib/validation/schemas";
-
-// Hardcoded test user ID for manual testing phase
-const TEST_USER_ID = "00000000-0000-0000-0000-000000000000";
 
 /**
  * GET /api/flashcards
@@ -28,6 +25,12 @@ const TEST_USER_ID = "00000000-0000-0000-0000-000000000000";
  */
 export async function GET(context: APIContext): Promise<Response> {
   try {
+    // Verify user authentication
+    const user = context.locals.user;
+    if (!user) {
+      return unauthorizedError("Musisz być zalogowany");
+    }
+
     const supabase = context.locals.supabase as SupabaseClient;
 
     // Extract query parameters from URL
@@ -65,7 +68,7 @@ export async function GET(context: APIContext): Promise<Response> {
     };
 
     // Call service to get flashcards
-    const result = await listFlashcards(supabase, TEST_USER_ID, filters, pagination);
+    const result = await listFlashcards(supabase, user.id, filters, pagination);
 
     // Return successful response
     return new Response(JSON.stringify(result), {
@@ -92,6 +95,12 @@ export async function GET(context: APIContext): Promise<Response> {
  */
 export async function POST(context: APIContext): Promise<Response> {
   try {
+    // Verify user authentication
+    const user = context.locals.user;
+    if (!user) {
+      return unauthorizedError("Musisz być zalogowany");
+    }
+
     const supabase = context.locals.supabase as SupabaseClient;
 
     // Parse request body
@@ -116,7 +125,7 @@ export async function POST(context: APIContext): Promise<Response> {
     }
 
     // Create flashcard using service
-    const flashcard = await createManualFlashcard(supabase, TEST_USER_ID, validated);
+    const flashcard = await createManualFlashcard(supabase, user.id, validated);
 
     // Return created flashcard with 201 status
     return new Response(JSON.stringify(flashcard), {

@@ -53,9 +53,7 @@ export default function DashboardView() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
           <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground">
-            Przegląd statystyk efektywności generowania fiszek przez AI
-          </p>
+          <p className="text-muted-foreground">Przegląd statystyk efektywności generowania fiszek przez AI</p>
         </div>
 
         {/* Period Selector - only show when not loading and not in error/empty state */}

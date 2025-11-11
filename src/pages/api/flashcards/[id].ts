@@ -4,7 +4,7 @@ import type { APIContext } from "astro";
 import { z } from "zod";
 
 import type { SupabaseClient } from "../../../db/supabase.client";
-import { internalError, notFoundError, validationError } from "../../../lib/helpers/error.helper";
+import { internalError, notFoundError, unauthorizedError, validationError } from "../../../lib/helpers/error.helper";
 import { getFlashcardById, updateFlashcard, deleteFlashcard } from "../../../lib/services/flashcard.service";
 import {
   flashcardIdParamSchema,
@@ -12,9 +12,6 @@ import {
   type FlashcardIdParam,
   type UpdateFlashcardInput,
 } from "../../../lib/validation/schemas";
-
-// Hardcoded test user ID for manual testing phase
-const TEST_USER_ID = "00000000-0000-0000-0000-000000000000";
 
 /**
  * GET /api/flashcards/:id
@@ -25,6 +22,12 @@ const TEST_USER_ID = "00000000-0000-0000-0000-000000000000";
  */
 export async function GET(context: APIContext): Promise<Response> {
   try {
+    // Verify user authentication
+    const user = context.locals.user;
+    if (!user) {
+      return unauthorizedError("Musisz być zalogowany");
+    }
+
     const supabase = context.locals.supabase as SupabaseClient;
 
     // Extract and validate ID from URL parameters
@@ -43,7 +46,7 @@ export async function GET(context: APIContext): Promise<Response> {
     }
 
     // Get flashcard from service
-    const flashcard = await getFlashcardById(supabase, TEST_USER_ID, validated.id);
+    const flashcard = await getFlashcardById(supabase, user.id, validated.id);
 
     // Return 404 if not found
     if (!flashcard) {
@@ -78,6 +81,12 @@ export async function GET(context: APIContext): Promise<Response> {
  */
 export async function PATCH(context: APIContext): Promise<Response> {
   try {
+    // Verify user authentication
+    const user = context.locals.user;
+    if (!user) {
+      return unauthorizedError("Musisz być zalogowany");
+    }
+
     const supabase = context.locals.supabase as SupabaseClient;
 
     // Extract and validate ID from URL parameters
@@ -117,7 +126,7 @@ export async function PATCH(context: APIContext): Promise<Response> {
     }
 
     // Update flashcard using service
-    const flashcard = await updateFlashcard(supabase, TEST_USER_ID, validatedId.id, validated);
+    const flashcard = await updateFlashcard(supabase, user.id, validatedId.id, validated);
 
     // Return 404 if not found
     if (!flashcard) {
@@ -146,6 +155,12 @@ export async function PATCH(context: APIContext): Promise<Response> {
  */
 export async function DELETE(context: APIContext): Promise<Response> {
   try {
+    // Verify user authentication
+    const user = context.locals.user;
+    if (!user) {
+      return unauthorizedError("Musisz być zalogowany");
+    }
+
     const supabase = context.locals.supabase as SupabaseClient;
 
     // Extract and validate ID from URL parameters
@@ -164,7 +179,7 @@ export async function DELETE(context: APIContext): Promise<Response> {
     }
 
     // Delete flashcard using service
-    const deleted = await deleteFlashcard(supabase, TEST_USER_ID, validated.id);
+    const deleted = await deleteFlashcard(supabase, user.id, validated.id);
 
     // Return 404 if not found
     if (!deleted) {

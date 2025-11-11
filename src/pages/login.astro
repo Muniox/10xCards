@@ -1,0 +1,18 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { LoginForm } from "@/components/auth/LoginForm";
+
+// Check if user is already authenticated
+// Use locals.user set by middleware (which uses auth.getUser())
+const { user } = Astro.locals;
+
+if (user) {
+  return Astro.redirect("/app/dashboard");
+}
+---
+
+<Layout title="Zaloguj się - 10xCards">
+  <div class="flex min-h-screen items-center justify-center p-4">
+    <LoginForm client:load />
+  </div>
+</Layout>
