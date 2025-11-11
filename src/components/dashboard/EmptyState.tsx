@@ -27,20 +27,17 @@ export function EmptyState() {
 
         {/* Heading */}
         <div className="space-y-2">
-          <h3 className="text-2xl font-semibold tracking-tight">
-            Brak statystyk
-          </h3>
+          <h3 className="text-2xl font-semibold tracking-tight">Brak statystyk</h3>
           <p className="text-muted-foreground">
-            Nie masz jeszcze żadnych wygenerowanych fiszek. Zacznij od wygenerowania pierwszego zestawu, aby zobaczyć swoje statystyki tutaj.
+            Nie masz jeszcze żadnych wygenerowanych fiszek. Zacznij od wygenerowania pierwszego zestawu, aby zobaczyć
+            swoje statystyki tutaj.
           </p>
         </div>
 
         {/* CTA Button */}
         <div>
           <Button asChild size="lg">
-            <a href="/app/generate">
-              Wygeneruj pierwsze fiszki
-            </a>
+            <a href="/app/generate">Wygeneruj pierwsze fiszki</a>
           </Button>
         </div>
       </div>

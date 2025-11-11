@@ -105,9 +105,7 @@ export function RegisterForm() {
               autoComplete="email"
               aria-invalid={!!fieldErrors.email}
             />
-            {fieldErrors.email && (
-              <p className="text-sm text-red-600">{fieldErrors.email}</p>
-            )}
+            {fieldErrors.email && <p className="text-sm text-red-600">{fieldErrors.email}</p>}
           </div>
 
           <div className="space-y-2">
@@ -123,9 +121,7 @@ export function RegisterForm() {
               autoComplete="new-password"
               aria-invalid={!!fieldErrors.password}
             />
-            {fieldErrors.password && (
-              <p className="text-sm text-red-600">{fieldErrors.password}</p>
-            )}
+            {fieldErrors.password && <p className="text-sm text-red-600">{fieldErrors.password}</p>}
           </div>
 
           <div className="space-y-2">
@@ -141,9 +137,7 @@ export function RegisterForm() {
               autoComplete="new-password"
               aria-invalid={!!fieldErrors.confirmPassword}
             />
-            {fieldErrors.confirmPassword && (
-              <p className="text-sm text-red-600">{fieldErrors.confirmPassword}</p>
-            )}
+            {fieldErrors.confirmPassword && <p className="text-sm text-red-600">{fieldErrors.confirmPassword}</p>}
           </div>
 
           <Button type="submit" className="w-full" disabled={isLoading}>

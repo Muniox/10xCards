@@ -55,6 +55,12 @@ Creating high-quality flashcards manually is time-consuming and often discourage
   - Cost optimization through model selection
   - Financial limits and usage controls
 
+### Testing
+
+- **[Vitest](https://vitest.dev/)** - Fast unit and integration test runner compatible with Vite
+- **[React Testing Library](https://testing-library.com/react)** - Testing React components with user-centric approach
+- **[Playwright](https://playwright.dev/)** - Modern end-to-end testing framework for browser automation
+
 ### DevOps & Hosting
 
 - **GitHub Actions** - CI/CD pipelines for automated testing and deployment
@@ -133,6 +139,9 @@ npm run preview
 | Development | `npm run dev`      | Start the Astro development server with hot reload |
 | Build       | `npm run build`    | Create an optimized production build               |
 | Preview     | `npm run preview`  | Preview the production build locally               |
+| Test        | `npm run test`     | Run unit and integration tests with Vitest         |
+| Test UI     | `npm run test:ui`  | Run tests with interactive UI                      |
+| Test E2E    | `npm run test:e2e` | Run end-to-end tests with Playwright               |
 | Lint        | `npm run lint`     | Run ESLint to check for code quality issues        |
 | Lint Fix    | `npm run lint:fix` | Automatically fix ESLint issues where possible     |
 | Format      | `npm run format`   | Format code using Prettier                         |

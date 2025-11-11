@@ -88,12 +88,8 @@ export function ResetPasswordForm() {
   return (
     <div className="w-full max-w-md mx-auto">
       <div className="bg-card rounded-lg border shadow-sm p-8">
-        <h1 className="text-2xl font-bold text-center mb-2">
-          Resetowanie hasła
-        </h1>
-        <p className="text-center text-muted-foreground text-sm mb-6">
-          Podaj adres email powiązany z Twoim kontem
-        </p>
+        <h1 className="text-2xl font-bold text-center mb-2">Resetowanie hasła</h1>
+        <p className="text-center text-muted-foreground text-sm mb-6">Podaj adres email powiązany z Twoim kontem</p>
 
         {error && (
           <Alert variant="destructive" className="mb-6">
@@ -107,9 +103,8 @@ export function ResetPasswordForm() {
             <Alert variant="default" className="border-green-200 bg-green-50 dark:bg-green-950/20">
               <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
               <AlertDescription className="text-green-800 dark:text-green-300">
-                Link do resetowania hasła został wysłany na adres{" "}
-                <strong>{formData.email}</strong>. Sprawdź swoją skrzynkę
-                pocztową.
+                Link do resetowania hasła został wysłany na adres <strong>{formData.email}</strong>. Sprawdź swoją
+                skrzynkę pocztową.
               </AlertDescription>
             </Alert>
 
@@ -138,9 +133,7 @@ export function ResetPasswordForm() {
                   autoComplete="email"
                   aria-invalid={!!fieldErrors.email}
                 />
-                {fieldErrors.email && (
-                  <p className="text-sm text-red-600">{fieldErrors.email}</p>
-                )}
+                {fieldErrors.email && <p className="text-sm text-red-600">{fieldErrors.email}</p>}
               </div>
 
               <Button type="submit" className="w-full" disabled={isLoading}>

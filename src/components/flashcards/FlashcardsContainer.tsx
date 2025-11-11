@@ -142,10 +142,7 @@ export function FlashcardsContainer({ initialData, userId }: FlashcardsContainer
       {error && !isLoading && flashcards.length === 0 && (
         <div className="text-center py-12">
           <p className="text-destructive mb-4">{error}</p>
-          <button
-            onClick={() => loadFlashcards(pagination.page)}
-            className="text-sm underline hover:no-underline"
-          >
+          <button onClick={() => loadFlashcards(pagination.page)} className="text-sm underline hover:no-underline">
             Spróbuj ponownie
           </button>
         </div>

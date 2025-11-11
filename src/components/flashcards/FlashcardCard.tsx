@@ -13,12 +13,7 @@ import type { FlashcardCardProps } from "@/types/flashcards-view.types";
  * Component representing a single flashcard card
  * Displays front and back text with edit/delete actions
  */
-export function FlashcardCard({
-  flashcard,
-  onEdit,
-  onDelete,
-  isOptimisticallyDeleted = false,
-}: FlashcardCardProps) {
+export function FlashcardCard({ flashcard, onEdit, onDelete, isOptimisticallyDeleted = false }: FlashcardCardProps) {
   // Hide card if optimistically deleted
   if (isOptimisticallyDeleted) {
     return null;
@@ -30,12 +25,7 @@ export function FlashcardCard({
         <h3 className="font-semibold text-sm text-muted-foreground">Przód</h3>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0"
-              aria-label="Otwórz menu akcji"
-            >
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0" aria-label="Otwórz menu akcji">
               <MoreVertical className="h-4 w-4" aria-hidden="true" />
             </Button>
           </DropdownMenuTrigger>
@@ -53,15 +43,11 @@ export function FlashcardCard({
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
-          <p className="text-sm whitespace-pre-wrap break-words line-clamp-4">
-            {flashcard.front}
-          </p>
+          <p className="text-sm whitespace-pre-wrap break-words line-clamp-4">{flashcard.front}</p>
         </div>
         <div className="pt-2 border-t">
           <h4 className="font-semibold text-sm text-muted-foreground mb-2">Tył</h4>
-          <p className="text-sm whitespace-pre-wrap break-words line-clamp-4">
-            {flashcard.back}
-          </p>
+          <p className="text-sm whitespace-pre-wrap break-words line-clamp-4">{flashcard.back}</p>
         </div>
         {flashcard.source && (
           <div className="pt-2">
@@ -74,11 +60,7 @@ export function FlashcardCard({
                     : "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200"
               }`}
             >
-              {flashcard.source === "manual"
-                ? "Ręczna"
-                : flashcard.source === "ai-full"
-                  ? "AI"
-                  : "AI Edytowana"}
+              {flashcard.source === "manual" ? "Ręczna" : flashcard.source === "ai-full" ? "AI" : "AI Edytowana"}
             </span>
           </div>
         )}

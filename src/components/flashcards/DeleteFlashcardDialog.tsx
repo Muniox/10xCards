@@ -15,12 +15,7 @@ import type { DeleteFlashcardDialogProps } from "@/types/flashcards-view.types";
  * Alert dialog for confirming flashcard deletion
  * Shows warning message and optional flashcard preview
  */
-export function DeleteFlashcardDialog({
-  isOpen,
-  flashcard,
-  onClose,
-  onConfirm,
-}: DeleteFlashcardDialogProps) {
+export function DeleteFlashcardDialog({ isOpen, flashcard, onClose, onConfirm }: DeleteFlashcardDialogProps) {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleConfirm = async () => {

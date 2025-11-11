@@ -26,9 +26,7 @@ export function ErrorState({ message, onRetry }: ErrorStateProps) {
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Wystąpił błąd</AlertTitle>
-          <AlertDescription className="mt-2">
-            {message}
-          </AlertDescription>
+          <AlertDescription className="mt-2">{message}</AlertDescription>
         </Alert>
 
         {onRetry && (

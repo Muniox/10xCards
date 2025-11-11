@@ -13,7 +13,7 @@ export class OpenRouterError extends Error {
     public details?: unknown
   ) {
     super(message);
-    this.name = 'OpenRouterError';
+    this.name = "OpenRouterError";
     Object.setPrototypeOf(this, OpenRouterError.prototype);
   }
 }
@@ -23,8 +23,8 @@ export class OpenRouterError extends Error {
  */
 export class ConfigurationError extends OpenRouterError {
   constructor(message: string, details?: unknown) {
-    super(message, 'CONFIGURATION_ERROR', details);
-    this.name = 'ConfigurationError';
+    super(message, "CONFIGURATION_ERROR", details);
+    this.name = "ConfigurationError";
     Object.setPrototypeOf(this, ConfigurationError.prototype);
   }
 }
@@ -34,8 +34,8 @@ export class ConfigurationError extends OpenRouterError {
  */
 export class ValidationError extends OpenRouterError {
   constructor(message: string, details?: unknown) {
-    super(message, 'VALIDATION_ERROR', details);
-    this.name = 'ValidationError';
+    super(message, "VALIDATION_ERROR", details);
+    this.name = "ValidationError";
     Object.setPrototypeOf(this, ValidationError.prototype);
   }
 }
@@ -45,8 +45,8 @@ export class ValidationError extends OpenRouterError {
  */
 export class AuthenticationError extends OpenRouterError {
   constructor(message: string, details?: unknown) {
-    super(message, 'AUTHENTICATION_ERROR', details);
-    this.name = 'AuthenticationError';
+    super(message, "AUTHENTICATION_ERROR", details);
+    this.name = "AuthenticationError";
     Object.setPrototypeOf(this, AuthenticationError.prototype);
   }
 }
@@ -56,8 +56,8 @@ export class AuthenticationError extends OpenRouterError {
  */
 export class AuthorizationError extends OpenRouterError {
   constructor(message: string, details?: unknown) {
-    super(message, 'AUTHORIZATION_ERROR', details);
-    this.name = 'AuthorizationError';
+    super(message, "AUTHORIZATION_ERROR", details);
+    this.name = "AuthorizationError";
     Object.setPrototypeOf(this, AuthorizationError.prototype);
   }
 }
@@ -71,8 +71,8 @@ export class RateLimitError extends OpenRouterError {
     public retryAfter?: number,
     details?: unknown
   ) {
-    super(message, 'RATE_LIMIT_ERROR', details);
-    this.name = 'RateLimitError';
+    super(message, "RATE_LIMIT_ERROR", details);
+    this.name = "RateLimitError";
     Object.setPrototypeOf(this, RateLimitError.prototype);
   }
 }
@@ -86,8 +86,8 @@ export class APIError extends OpenRouterError {
     public statusCode: number,
     details?: unknown
   ) {
-    super(message, 'API_ERROR', details);
-    this.name = 'APIError';
+    super(message, "API_ERROR", details);
+    this.name = "APIError";
     Object.setPrototypeOf(this, APIError.prototype);
   }
 }
@@ -97,8 +97,8 @@ export class APIError extends OpenRouterError {
  */
 export class TimeoutError extends OpenRouterError {
   constructor(message: string, details?: unknown) {
-    super(message, 'TIMEOUT_ERROR', details);
-    this.name = 'TimeoutError';
+    super(message, "TIMEOUT_ERROR", details);
+    this.name = "TimeoutError";
     Object.setPrototypeOf(this, TimeoutError.prototype);
   }
 }
@@ -108,8 +108,8 @@ export class TimeoutError extends OpenRouterError {
  */
 export class JSONParsingError extends OpenRouterError {
   constructor(message: string, details?: unknown) {
-    super(message, 'JSON_PARSING_ERROR', details);
-    this.name = 'JSONParsingError';
+    super(message, "JSON_PARSING_ERROR", details);
+    this.name = "JSONParsingError";
     Object.setPrototypeOf(this, JSONParsingError.prototype);
   }
 }

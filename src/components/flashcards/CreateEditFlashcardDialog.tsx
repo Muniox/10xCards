@@ -88,10 +88,7 @@ export function CreateEditFlashcardDialog({
 
   // Check if form is valid
   const isFormValid =
-    !formErrors.front &&
-    !formErrors.back &&
-    formData.front.trim().length > 0 &&
-    formData.back.trim().length > 0;
+    !formErrors.front && !formErrors.back && formData.front.trim().length > 0 && formData.back.trim().length > 0;
 
   const isSubmitDisabled = !isFormValid || isSubmitting;
 

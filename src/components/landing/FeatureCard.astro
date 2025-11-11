@@ -1,14 +1,16 @@
 ---
 interface Props {
-  icon: string;        // Emoji lub ikona (np. "✨")
-  title: string;       // Tytuł funkcji (np. "Generowanie przez AI")
+  icon: string; // Emoji lub ikona (np. "✨")
+  title: string; // Tytuł funkcji (np. "Generowanie przez AI")
   description: string; // Opis funkcji
 }
 
 const { icon, title, description } = Astro.props;
 ---
 
-<div class="feature-card group rounded-lg border bg-card p-6 text-card-foreground shadow-sm transition-all hover:shadow-md">
+<div
+  class="feature-card group rounded-lg border bg-card p-6 text-card-foreground shadow-sm transition-all hover:shadow-md"
+>
   <div class="feature-icon mb-4 text-4xl" aria-hidden="true">
     {icon}
   </div>

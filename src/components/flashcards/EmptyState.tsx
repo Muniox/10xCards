@@ -13,9 +13,7 @@ export function EmptyState({ onCreateClick }: EmptyStateProps) {
         <FileQuestion className="h-12 w-12 text-muted-foreground" aria-hidden="true" />
       </div>
       <h2 className="text-2xl font-semibold mb-2">Nie masz jeszcze żadnych fiszek</h2>
-      <p className="text-muted-foreground mb-6 max-w-md">
-        Stwórz swoją pierwszą fiszkę, aby rozpocząć naukę
-      </p>
+      <p className="text-muted-foreground mb-6 max-w-md">Stwórz swoją pierwszą fiszkę, aby rozpocząć naukę</p>
       <Button onClick={onCreateClick} size="lg">
         Stwórz pierwszą fiszkę
       </Button>

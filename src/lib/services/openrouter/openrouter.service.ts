@@ -10,7 +10,7 @@ import type {
   SchemaCompletionRequest,
   ResponseFormat,
   JSONSchema,
-} from './openrouter.types';
+} from "./openrouter.types";
 import {
   ConfigurationError,
   ValidationError,
@@ -21,7 +21,7 @@ import {
   TimeoutError,
   JSONParsingError,
   OpenRouterError,
-} from './openrouter.errors';
+} from "./openrouter.errors";
 
 /**
  * OpenRouter Service Class
@@ -40,15 +40,15 @@ export class OpenRouterService {
   constructor(config: OpenRouterConfig) {
     // Validate API key
     if (!config.apiKey || config.apiKey.trim().length === 0) {
-      throw new ConfigurationError('API key is required');
+      throw new ConfigurationError("API key is required");
     }
 
     // Set default values
-    const baseUrl = config.baseUrl || 'https://openrouter.ai/api/v1';
-    const httpReferer = config.httpReferer || 'https://10xcards.app';
-    const appTitle = config.appTitle || '10xCards';
+    const baseUrl = config.baseUrl || "https://openrouter.ai/api/v1";
+    const httpReferer = config.httpReferer || "https://10xcards.app";
+    const appTitle = config.appTitle || "10xCards";
     const defaultTimeout = config.defaultTimeout || 30000;
-    const defaultModel = config.defaultModel || 'openai/gpt-4o-mini';
+    const defaultModel = config.defaultModel || "openai/gpt-4o-mini";
 
     this.config = {
       ...config,
@@ -63,10 +63,10 @@ export class OpenRouterService {
 
     // Prepare base headers
     this.baseHeaders = {
-      'Authorization': `Bearer ${this.config.apiKey}`,
-      'Content-Type': 'application/json',
-      'HTTP-Referer': httpReferer,
-      'X-Title': appTitle,
+      Authorization: `Bearer ${this.config.apiKey}`,
+      "Content-Type": "application/json",
+      "HTTP-Referer": httpReferer,
+      "X-Title": appTitle,
     };
   }
 
@@ -87,13 +87,13 @@ export class OpenRouterService {
   private buildRequestBody(request: CompletionRequest): unknown {
     // Validate messages
     if (!request.messages || request.messages.length === 0) {
-      throw new ValidationError('Messages array cannot be empty');
+      throw new ValidationError("Messages array cannot be empty");
     }
 
     // Validate temperature
     if (request.temperature !== undefined) {
       if (request.temperature < 0 || request.temperature > 2) {
-        throw new ValidationError('Temperature must be between 0 and 2', {
+        throw new ValidationError("Temperature must be between 0 and 2", {
           provided: request.temperature,
         });
       }
@@ -102,7 +102,7 @@ export class OpenRouterService {
     // Validate topP
     if (request.topP !== undefined) {
       if (request.topP < 0 || request.topP > 1) {
-        throw new ValidationError('topP must be between 0 and 1', {
+        throw new ValidationError("topP must be between 0 and 1", {
           provided: request.topP,
         });
       }
@@ -111,7 +111,7 @@ export class OpenRouterService {
     // Validate frequency penalty
     if (request.frequencyPenalty !== undefined) {
       if (request.frequencyPenalty < -2 || request.frequencyPenalty > 2) {
-        throw new ValidationError('frequencyPenalty must be between -2 and 2', {
+        throw new ValidationError("frequencyPenalty must be between -2 and 2", {
           provided: request.frequencyPenalty,
         });
       }
@@ -120,7 +120,7 @@ export class OpenRouterService {
     // Validate presence penalty
     if (request.presencePenalty !== undefined) {
       if (request.presencePenalty < -2 || request.presencePenalty > 2) {
-        throw new ValidationError('presencePenalty must be between -2 and 2', {
+        throw new ValidationError("presencePenalty must be between -2 and 2", {
           provided: request.presencePenalty,
         });
       }
@@ -129,7 +129,7 @@ export class OpenRouterService {
     // Build request body
     const body: Record<string, unknown> = {
       model: request.model || this.config.defaultModel,
-      messages: request.messages.map(msg => ({
+      messages: request.messages.map((msg) => ({
         role: msg.role,
         content: msg.content,
       })),
@@ -174,16 +174,13 @@ export class OpenRouterService {
    * @throws {APIError} If network error occurs
    * @throws {OpenRouterError} If API returns error
    */
-  private async executeRequest(
-    body: unknown,
-    timeout: number
-  ): Promise<unknown> {
+  private async executeRequest(body: unknown, timeout: number): Promise<unknown> {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeout);
 
     try {
       const response = await fetch(`${this.baseUrl}/chat/completions`, {
-        method: 'POST',
+        method: "POST",
         headers: this.baseHeaders,
         body: JSON.stringify(body),
         signal: controller.signal,
@@ -209,20 +206,13 @@ export class OpenRouterService {
       clearTimeout(timeoutId);
 
       // Handle abort (timeout)
-      if (error instanceof Error && error.name === 'AbortError') {
-        throw new TimeoutError(
-          `Request timed out after ${timeout}ms`,
-          { timeout }
-        );
+      if (error instanceof Error && error.name === "AbortError") {
+        throw new TimeoutError(`Request timed out after ${timeout}ms`, { timeout });
       }
 
       // Handle network errors
       if (error instanceof TypeError) {
-        throw new APIError(
-          `Network error: ${error.message}`,
-          0,
-          { originalError: error }
-        );
+        throw new APIError(`Network error: ${error.message}`, 0, { originalError: error });
       }
 
       // Re-throw OpenRouter errors
@@ -231,11 +221,9 @@ export class OpenRouterService {
       }
 
       // Unknown error
-      throw new APIError(
-        `Unexpected error: ${error instanceof Error ? error.message : 'Unknown'}`,
-        0,
-        { originalError: error }
-      );
+      throw new APIError(`Unexpected error: ${error instanceof Error ? error.message : "Unknown"}`, 0, {
+        originalError: error,
+      });
     }
   }
 
@@ -255,22 +243,13 @@ export class OpenRouterService {
 
     switch (status) {
       case 400:
-        throw new ValidationError(
-          `Validation error: ${errorMessage}`,
-          errorBody
-        );
+        throw new ValidationError(`Validation error: ${errorMessage}`, errorBody);
       case 401:
-        throw new AuthenticationError(
-          `Authentication failed: ${errorMessage}`,
-          errorBody
-        );
+        throw new AuthenticationError(`Authentication failed: ${errorMessage}`, errorBody);
       case 403:
-        throw new AuthorizationError(
-          `Authorization failed: ${errorMessage}`,
-          errorBody
-        );
+        throw new AuthorizationError(`Authorization failed: ${errorMessage}`, errorBody);
       case 429: {
-        const retryAfter = response.headers.get('Retry-After');
+        const retryAfter = response.headers.get("Retry-After");
         throw new RateLimitError(
           `Rate limit exceeded: ${errorMessage}`,
           retryAfter ? parseInt(retryAfter, 10) : undefined,
@@ -278,11 +257,7 @@ export class OpenRouterService {
         );
       }
       default:
-        throw new APIError(
-          `API error (${status}): ${errorMessage}`,
-          status,
-          errorBody
-        );
+        throw new APIError(`API error (${status}): ${errorMessage}`, status, errorBody);
     }
   }
 
@@ -292,22 +267,22 @@ export class OpenRouterService {
    * @returns Extracted error message
    */
   private extractErrorMessage(errorBody: unknown): string {
-    if (typeof errorBody === 'object' && errorBody !== null) {
+    if (typeof errorBody === "object" && errorBody !== null) {
       const err = errorBody as Record<string, unknown>;
-      if (typeof err.error === 'string') {
+      if (typeof err.error === "string") {
         return err.error;
       }
-      if (typeof err.message === 'string') {
+      if (typeof err.message === "string") {
         return err.message;
       }
-      if (typeof err.error === 'object' && err.error !== null) {
+      if (typeof err.error === "object" && err.error !== null) {
         const nestedErr = err.error as Record<string, unknown>;
-        if (typeof nestedErr.message === 'string') {
+        if (typeof nestedErr.message === "string") {
           return nestedErr.message;
         }
       }
     }
-    return 'Unknown error';
+    return "Unknown error";
   }
 
   /**
@@ -317,27 +292,24 @@ export class OpenRouterService {
    * @returns Parsed completion response
    * @throws {ValidationError} If response structure is invalid
    */
-  private parseResponse<T>(
-    rawResponse: unknown,
-    responseFormat?: ResponseFormat
-  ): CompletionResponse<T> {
+  private parseResponse<T>(rawResponse: unknown, responseFormat?: ResponseFormat): CompletionResponse<T> {
     // Validate response structure
-    if (typeof rawResponse !== 'object' || rawResponse === null) {
-      throw new ValidationError('Invalid response structure from API');
+    if (typeof rawResponse !== "object" || rawResponse === null) {
+      throw new ValidationError("Invalid response structure from API");
     }
 
     const response = rawResponse as Record<string, unknown>;
 
     // Validate choices
     if (!Array.isArray(response.choices) || response.choices.length === 0) {
-      throw new ValidationError('No choices in API response');
+      throw new ValidationError("No choices in API response");
     }
 
     const choice = response.choices[0] as Record<string, unknown>;
     const message = choice.message as Record<string, unknown> | undefined;
 
-    if (!message || typeof message.content !== 'string') {
-      throw new ValidationError('Invalid message structure in API response');
+    if (!message || typeof message.content !== "string") {
+      throw new ValidationError("Invalid message structure in API response");
     }
 
     const content = message.content;
@@ -345,10 +317,7 @@ export class OpenRouterService {
     // Parse content
     let parsedContent: T;
     if (responseFormat) {
-      parsedContent = this.validateJSONResponse<T>(
-        content,
-        responseFormat.json_schema.schema
-      );
+      parsedContent = this.validateJSONResponse<T>(content, responseFormat.json_schema.schema);
     } else {
       parsedContent = content as T;
     }
@@ -362,13 +331,13 @@ export class OpenRouterService {
     };
 
     // Extract finish_reason
-    const finishReason = (choice.finish_reason as string) || 'stop';
+    const finishReason = (choice.finish_reason as string) || "stop";
 
     return {
       content: parsedContent,
-      model: (response.model as string) || 'unknown',
+      model: (response.model as string) || "unknown",
       usage: usageData,
-      finishReason: finishReason as CompletionResponse['finishReason'],
+      finishReason: finishReason as CompletionResponse["finishReason"],
       raw: rawResponse,
     };
   }
@@ -380,10 +349,7 @@ export class OpenRouterService {
    * @returns Parsed JSON object
    * @throws {JSONParsingError} If JSON is invalid or doesn't match schema
    */
-  private validateJSONResponse<T>(
-    content: string,
-    schema?: JSONSchema
-  ): T {
+  private validateJSONResponse<T>(content: string, schema?: JSONSchema): T {
     // Extract JSON from markdown code blocks if present
     let jsonString = content.trim();
 
@@ -405,7 +371,7 @@ export class OpenRouterService {
       parsed = JSON.parse(jsonString);
     } catch (error) {
       throw new JSONParsingError(
-        `Failed to parse JSON response: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        `Failed to parse JSON response: ${error instanceof Error ? error.message : "Unknown error"}`,
         { content, error }
       );
     }
@@ -426,28 +392,22 @@ export class OpenRouterService {
    */
   private validateAgainstSchema(data: unknown, schema: JSONSchema): void {
     // Basic type validation
-    const actualType = Array.isArray(data) ? 'array' : typeof data;
+    const actualType = Array.isArray(data) ? "array" : typeof data;
 
-    if (schema.type === 'object' && actualType !== 'object') {
-      throw new JSONParsingError(
-        `Schema validation failed: expected object, got ${actualType}`
-      );
+    if (schema.type === "object" && actualType !== "object") {
+      throw new JSONParsingError(`Schema validation failed: expected object, got ${actualType}`);
     }
 
-    if (schema.type === 'array' && !Array.isArray(data)) {
-      throw new JSONParsingError(
-        `Schema validation failed: expected array, got ${actualType}`
-      );
+    if (schema.type === "array" && !Array.isArray(data)) {
+      throw new JSONParsingError(`Schema validation failed: expected array, got ${actualType}`);
     }
 
     // Validate required fields for objects
-    if (schema.type === 'object' && schema.required && typeof data === 'object' && data !== null) {
+    if (schema.type === "object" && schema.required && typeof data === "object" && data !== null) {
       const obj = data as Record<string, unknown>;
       for (const required of schema.required) {
         if (!(required in obj)) {
-          throw new JSONParsingError(
-            `Schema validation failed: missing required field "${required}"`
-          );
+          throw new JSONParsingError(`Schema validation failed: missing required field "${required}"`);
         }
       }
     }
@@ -463,9 +423,7 @@ export class OpenRouterService {
    * @throws {ValidationError} If request is invalid
    * @throws {OpenRouterError} If API error occurs
    */
-  public async complete<T = string>(
-    request: CompletionRequest
-  ): Promise<CompletionResponse<T>> {
+  public async complete<T = string>(request: CompletionRequest): Promise<CompletionResponse<T>> {
     // 1. Build request body
     const body = this.buildRequestBody(request);
 
@@ -488,19 +446,15 @@ export class OpenRouterService {
    * @throws {ValidationError} If request is invalid
    * @throws {OpenRouterError} If API error occurs
    */
-  public async completeWithSchema<T>(
-    request: SchemaCompletionRequest
-  ): Promise<CompletionResponse<T>> {
+  public async completeWithSchema<T>(request: SchemaCompletionRequest): Promise<CompletionResponse<T>> {
     // Validate schema name
     if (!request.schemaName || !/^[a-zA-Z0-9_]+$/.test(request.schemaName)) {
-      throw new ValidationError(
-        'Schema name must contain only letters, numbers, and underscores'
-      );
+      throw new ValidationError("Schema name must contain only letters, numbers, and underscores");
     }
 
     // Create responseFormat
     const responseFormat: ResponseFormat = {
-      type: 'json_schema',
+      type: "json_schema",
       json_schema: {
         name: request.schemaName,
         strict: true,
