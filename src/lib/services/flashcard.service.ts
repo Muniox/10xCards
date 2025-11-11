@@ -199,18 +199,31 @@ export async function bulkCreateFlashcards(
   const aiFullCount = command.flashcards.filter((c) => c.source === "ai-full").length;
   const aiEditedCount = command.flashcards.filter((c) => c.source === "ai-edited").length;
 
-  // Update generation acceptance counts
-  const { error: updateError } = await supabase
+  // Get current generation counts
+  const { data: currentGen, error: fetchError } = await supabase
     .from("generations")
-    .update({
-      accepted_unedited_count: aiFullCount,
-      accepted_edited_count: aiEditedCount,
-    })
-    .eq("id", command.generation_id);
+    .select("accepted_unedited_count, accepted_edited_count")
+    .eq("id", command.generation_id)
+    .single();
 
-  if (updateError) {
-    // Log error but don't fail the operation - errors already handled elsewhere
-    // This is informational only for debugging generation statistics
+  if (!fetchError && currentGen) {
+    // Increment existing counts instead of replacing them
+    const newUneditedCount = (currentGen.accepted_unedited_count || 0) + aiFullCount;
+    const newEditedCount = (currentGen.accepted_edited_count || 0) + aiEditedCount;
+
+    // Update generation acceptance counts
+    const { error: updateError } = await supabase
+      .from("generations")
+      .update({
+        accepted_unedited_count: newUneditedCount,
+        accepted_edited_count: newEditedCount,
+      })
+      .eq("id", command.generation_id);
+
+    if (updateError) {
+      // Log error but don't fail the operation - errors already handled elsewhere
+      // This is informational only for debugging generation statistics
+    }
   }
 
   // Transform to DTOs
@@ -275,6 +288,25 @@ export async function updateFlashcard(
     throw new Error(`Failed to update flashcard: ${error.message}`);
   }
 
+  // If source changed from ai-full to ai-edited, update generation counts
+  if (current.source === "ai-full" && newSource === "ai-edited" && current.generation_id) {
+    const { data: currentGen } = await supabase
+      .from("generations")
+      .select("accepted_unedited_count, accepted_edited_count")
+      .eq("id", current.generation_id)
+      .single();
+
+    if (currentGen) {
+      await supabase
+        .from("generations")
+        .update({
+          accepted_unedited_count: Math.max(0, (currentGen.accepted_unedited_count || 0) - 1),
+          accepted_edited_count: (currentGen.accepted_edited_count || 0) + 1,
+        })
+        .eq("id", current.generation_id);
+    }
+  }
+
   // Transform to DTO
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { user_id, ...rest } = data;
@@ -292,6 +324,14 @@ export async function updateFlashcard(
  * @returns true if deleted, false if not found
  */
 export async function deleteFlashcard(supabase: SupabaseClient, userId: string, flashcardId: number): Promise<boolean> {
+  // First, fetch the flashcard to get its generation_id and source
+  const flashcard = await getFlashcardById(supabase, userId, flashcardId);
+
+  if (!flashcard) {
+    return false;
+  }
+
+  // Delete the flashcard
   const { error, count } = await supabase
     .from("flashcards")
     .delete({ count: "exact" })
@@ -302,5 +342,30 @@ export async function deleteFlashcard(supabase: SupabaseClient, userId: string, 
     throw new Error(`Failed to delete flashcard: ${error.message}`);
   }
 
-  return (count ?? 0) > 0;
+  const deleted = (count ?? 0) > 0;
+
+  // If deleted and has generation_id, update generation counts
+  if (deleted && flashcard.generation_id) {
+    const { data: currentGen } = await supabase
+      .from("generations")
+      .select("accepted_unedited_count, accepted_edited_count")
+      .eq("id", flashcard.generation_id)
+      .single();
+
+    if (currentGen) {
+      const updates: { accepted_unedited_count?: number; accepted_edited_count?: number } = {};
+
+      if (flashcard.source === "ai-full") {
+        updates.accepted_unedited_count = Math.max(0, (currentGen.accepted_unedited_count || 0) - 1);
+      } else if (flashcard.source === "ai-edited") {
+        updates.accepted_edited_count = Math.max(0, (currentGen.accepted_edited_count || 0) - 1);
+      }
+
+      if (Object.keys(updates).length > 0) {
+        await supabase.from("generations").update(updates).eq("id", flashcard.generation_id);
+      }
+    }
+  }
+
+  return deleted;
 }

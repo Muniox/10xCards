@@ -349,9 +349,9 @@ export async function getGenerationStatistics(
 
   const mostUsedModel = Object.entries(modelCounts).sort(([, a], [, b]) => b - a)[0]?.[0] || "";
 
-  // Calculate rates
-  const acceptanceRate = totalGenerated > 0 ? totalAccepted / totalGenerated : 0;
-  const uneditedAcceptanceRate = totalGenerated > 0 ? totalAcceptedUnedited / totalGenerated : 0;
+  // Calculate rates as percentages (0-100)
+  const acceptanceRate = totalGenerated > 0 ? (totalAccepted / totalGenerated) * 100 : 0;
+  const uneditedAcceptanceRate = totalGenerated > 0 ? (totalAcceptedUnedited / totalGenerated) * 100 : 0;
 
   return {
     total_generations: totalGenerations,
