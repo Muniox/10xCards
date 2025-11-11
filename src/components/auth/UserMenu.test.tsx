@@ -71,7 +71,7 @@ describe("UserMenu", () => {
       await user.click(triggerButton);
 
       await waitFor(() => {
-        const settingsLink = screen.getByRole("link", { name: /ustawienia konta/i });
+        const settingsLink = screen.getByRole("menuitem", { name: /ustawienia konta/i });
         expect(settingsLink).toHaveAttribute("href", "/app/settings");
       });
     });
@@ -122,7 +122,7 @@ describe("UserMenu", () => {
 
     it("should disable menu during logout", async () => {
       const user = userEvent.setup();
-      let resolveLogout: (value: unknown) => void;
+      let resolveLogout: ((value: unknown) => void) | undefined;
       const logoutPromise = new Promise((resolve) => {
         resolveLogout = resolve;
       });
@@ -141,11 +141,15 @@ describe("UserMenu", () => {
       const logoutButton = screen.getByRole("menuitem", { name: /wyloguj się/i });
       await user.click(logoutButton);
 
-      expect(triggerButton).toBeDisabled();
-      expect(screen.getByText(/wylogowywanie\.\.\./i)).toBeInTheDocument();
+      // Menu closes after click, so check disabled state without looking for "Wylogowywanie..."
+      await waitFor(() => {
+        expect(triggerButton).toBeDisabled();
+      });
 
       // Clean up
-      resolveLogout!({ ok: true, json: async () => ({}) });
+      if (resolveLogout) {
+        resolveLogout({ ok: true, json: async () => ({}) });
+      }
       await logoutPromise;
       await waitFor(() => {
         expect(mockLocation.href).toBe("/");
@@ -156,7 +160,10 @@ describe("UserMenu", () => {
   describe("Error Handling", () => {
     it("should show alert when logout fails with non-ok response", async () => {
       const user = userEvent.setup();
-      const mockAlert = vi.spyOn(window, "alert").mockImplementation(() => {});
+      // Mock window.alert
+      const mockAlert = vi.fn();
+      window.alert = mockAlert;
+
       const mockFetch = vi.fn().mockResolvedValueOnce({
         ok: false,
         status: 500,
@@ -179,13 +186,17 @@ describe("UserMenu", () => {
         expect(mockAlert).toHaveBeenCalledWith("Nie udało się wylogować. Spróbuj ponownie.");
       });
 
-      expect(mockLocation.href).toBe("");
-      mockAlert.mockRestore();
+      await waitFor(() => {
+        expect(mockLocation.href).toBe("");
+      });
     });
 
     it("should show alert when network error occurs", async () => {
       const user = userEvent.setup();
-      const mockAlert = vi.spyOn(window, "alert").mockImplementation(() => {});
+      // Mock window.alert
+      const mockAlert = vi.fn();
+      window.alert = mockAlert;
+
       const mockFetch = vi.fn().mockRejectedValueOnce(new Error("Network error"));
       global.fetch = mockFetch;
 
@@ -205,13 +216,17 @@ describe("UserMenu", () => {
         expect(mockAlert).toHaveBeenCalledWith("Brak połączenia z serwerem");
       });
 
-      expect(mockLocation.href).toBe("");
-      mockAlert.mockRestore();
+      await waitFor(() => {
+        expect(mockLocation.href).toBe("");
+      });
     });
 
     it("should re-enable menu after logout error", async () => {
       const user = userEvent.setup();
-      const mockAlert = vi.spyOn(window, "alert").mockImplementation(() => {});
+      // Mock window.alert
+      const mockAlert = vi.fn();
+      window.alert = mockAlert;
+
       const mockFetch = vi.fn().mockRejectedValueOnce(new Error("Network error"));
       global.fetch = mockFetch;
 
@@ -231,8 +246,9 @@ describe("UserMenu", () => {
         expect(mockAlert).toHaveBeenCalled();
       });
 
-      expect(triggerButton).not.toBeDisabled();
-      mockAlert.mockRestore();
+      await waitFor(() => {
+        expect(triggerButton).not.toBeDisabled();
+      });
     });
   });
 

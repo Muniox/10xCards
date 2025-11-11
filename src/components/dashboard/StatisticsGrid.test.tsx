@@ -78,7 +78,8 @@ describe("StatisticsGrid", () => {
 
       render(<StatisticsGrid statistics={zeroStatistics} />);
 
-      expect(screen.getByText("0")).toBeInTheDocument();
+      // Check for multiple "0" values via aria-labels to be more specific
+      expect(screen.getByLabelText(/Łączna liczba generacji: 0/i)).toBeInTheDocument();
       expect(screen.getAllByText(/0%/i).length).toBeGreaterThan(0);
       expect(screen.getByText("N/A")).toBeInTheDocument();
     });
@@ -99,9 +100,10 @@ describe("StatisticsGrid", () => {
 
       render(<StatisticsGrid statistics={highStatistics} />);
 
-      expect(screen.getByText("9,999")).toBeInTheDocument();
-      expect(screen.getByText("50,000")).toBeInTheDocument();
-      expect(screen.getByText("48,000")).toBeInTheDocument();
+      // pl-PL locale formats with spaces, not commas
+      expect(screen.getByText("9999")).toBeInTheDocument();
+      expect(screen.getByText("50 000")).toBeInTheDocument();
+      expect(screen.getByText("48 000")).toBeInTheDocument();
       expect(screen.getByText(/96%/i)).toBeInTheDocument();
     });
 
@@ -114,8 +116,9 @@ describe("StatisticsGrid", () => {
 
       render(<StatisticsGrid statistics={decimalStatistics} />);
 
-      expect(screen.getByText(/76%/i)).toBeInTheDocument(); // Rounded
-      expect(screen.getByText(/50%/i)).toBeInTheDocument(); // Rounded
+      // Percentages are rounded to nearest integer
+      expect(screen.getByText(/76%/i)).toBeInTheDocument(); // 75.5 -> 76
+      expect(screen.getByText(/50%/i)).toBeInTheDocument(); // 50.25 -> 50
     });
 
     it("should handle long model names", () => {
@@ -137,7 +140,8 @@ describe("StatisticsGrid", () => {
 
       render(<StatisticsGrid statistics={shortDurationStatistics} />);
 
-      expect(screen.getByText(/0\.5/i)).toBeInTheDocument();
+      // formatDuration converts milliseconds to seconds: 0.5ms -> 0.0005s displayed as "0,0s"
+      expect(screen.getByText(/0,0s/i)).toBeInTheDocument();
     });
 
     it("should handle very long durations", () => {
@@ -148,8 +152,8 @@ describe("StatisticsGrid", () => {
 
       render(<StatisticsGrid statistics={longDurationStatistics} />);
 
-      // Should display formatted duration
-      const durationElement = screen.getByText(/300/i);
+      // formatDuration: 300ms -> 0.3s displayed as "0,3s"
+      const durationElement = screen.getByText(/0,3s/i);
       expect(durationElement).toBeInTheDocument();
     });
   });
@@ -169,9 +173,9 @@ describe("StatisticsGrid", () => {
     it("should have semantic structure", () => {
       render(<StatisticsGrid statistics={mockStatistics} />);
 
-      // Check that cards are rendered
-      const cards = screen.getAllByRole("img", { hidden: true }).length;
-      expect(cards).toBeGreaterThan(0);
+      // Check that values have aria-labels
+      expect(screen.getByLabelText(/Łączna liczba generacji: 42/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/Wygenerowane fiszki: 250/i)).toBeInTheDocument();
     });
   });
 });

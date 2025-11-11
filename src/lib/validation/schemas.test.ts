@@ -126,7 +126,7 @@ describe("flashcardContentSchema", () => {
           front: "",
           back: "answer",
         })
-      ).toThrow("Front text is required");
+      ).toThrow("Przód fiszki jest wymagany");
     });
 
     it("odrzuca pusty back", () => {
@@ -135,7 +135,7 @@ describe("flashcardContentSchema", () => {
           front: "question",
           back: "",
         })
-      ).toThrow("Back text is required");
+      ).toThrow("Tył fiszki jest wymagany");
     });
 
     it("odrzuca front > 200 znaków", () => {
@@ -145,7 +145,7 @@ describe("flashcardContentSchema", () => {
           front,
           back: "answer",
         })
-      ).toThrow("Front text must be 200 characters or less");
+      ).toThrow("Maksymalnie 200 znaków");
     });
 
     it("odrzuca back > 500 znaków", () => {
@@ -155,7 +155,7 @@ describe("flashcardContentSchema", () => {
           front: "question",
           back,
         })
-      ).toThrow("Back text must be 500 characters or less");
+      ).toThrow("Maksymalnie 500 znaków");
     });
 
     it("odrzuca brak pola front", () => {

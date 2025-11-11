@@ -187,7 +187,9 @@ describe("CreateEditFlashcardDialog", () => {
 
       const frontInput = screen.getByLabelText(/przód fiszki/i);
       const longText = "a".repeat(FLASHCARD_LIMITS.FRONT_MAX_LENGTH + 1);
-      await user.type(frontInput, longText);
+      // Use paste instead of type for performance with long strings
+      await user.click(frontInput);
+      await user.paste(longText);
 
       const backInput = screen.getByLabelText(/tył fiszki/i);
       await user.type(backInput, "Back text");
@@ -211,7 +213,9 @@ describe("CreateEditFlashcardDialog", () => {
 
       const backInput = screen.getByLabelText(/tył fiszki/i);
       const longText = "a".repeat(FLASHCARD_LIMITS.BACK_MAX_LENGTH + 1);
-      await user.type(backInput, longText);
+      // Use paste instead of type for performance with long strings
+      await user.click(backInput);
+      await user.paste(longText);
 
       const submitButton = screen.getByRole("button", { name: /dodaj/i });
       await user.click(submitButton);

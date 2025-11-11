@@ -49,16 +49,25 @@ describe("RegisterForm", () => {
       await user.click(submitButton);
 
       await waitFor(() => {
-        expect(screen.getByText(/email jest wymagany/i)).toBeInTheDocument();
+        expect(screen.getByText(/nieprawidłowy format email/i)).toBeInTheDocument();
       });
     });
 
     it("should show error for invalid email format", async () => {
       const user = userEvent.setup();
+
+      // Mock fetch to prevent actual API call
+      const mockFetch = vi.fn();
+      global.fetch = mockFetch;
+
       render(<RegisterForm />);
 
       const emailInput = screen.getByLabelText(/^email$/i);
-      await user.type(emailInput, "invalid-email");
+      const passwordInput = screen.getByLabelText(/^hasło$/i);
+      const confirmPasswordInput = screen.getByLabelText(/powtórz hasło/i);
+      await user.type(emailInput, "notanemail");
+      await user.type(passwordInput, "password123");
+      await user.type(confirmPasswordInput, "password123");
 
       const submitButton = screen.getByRole("button", { name: /zarejestruj się/i });
       await user.click(submitButton);
@@ -66,6 +75,9 @@ describe("RegisterForm", () => {
       await waitFor(() => {
         expect(screen.getByText(/nieprawidłowy format email/i)).toBeInTheDocument();
       });
+
+      // Verify fetch was NOT called (client-side validation should prevent it)
+      expect(mockFetch).not.toHaveBeenCalled();
     });
 
     it("should show error for short password", async () => {
@@ -81,7 +93,7 @@ describe("RegisterForm", () => {
       await user.click(submitButton);
 
       await waitFor(() => {
-        expect(screen.getByText(/hasło musi mieć co najmniej 8 znaków/i)).toBeInTheDocument();
+        expect(screen.getByText(/hasło musi mieć minimum 8 znaków/i)).toBeInTheDocument();
       });
     });
 
@@ -113,14 +125,14 @@ describe("RegisterForm", () => {
       await user.click(submitButton);
 
       await waitFor(() => {
-        expect(screen.getByText(/email jest wymagany/i)).toBeInTheDocument();
+        expect(screen.getByText(/nieprawidłowy format email/i)).toBeInTheDocument();
       });
 
       const emailInput = screen.getByLabelText(/^email$/i);
       await user.type(emailInput, "t");
 
       await waitFor(() => {
-        expect(screen.queryByText(/email jest wymagany/i)).not.toBeInTheDocument();
+        expect(screen.queryByText(/nieprawidłowy format email/i)).not.toBeInTheDocument();
       });
     });
   });

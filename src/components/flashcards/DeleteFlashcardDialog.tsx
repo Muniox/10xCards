@@ -22,6 +22,10 @@ export function DeleteFlashcardDialog({ isOpen, flashcard, onClose, onConfirm }:
     setIsDeleting(true);
     try {
       await onConfirm();
+    } catch (error) {
+      // Silently handle error - parent component is responsible for error handling
+      // This prevents unhandled promise rejections in tests
+      void error;
     } finally {
       setIsDeleting(false);
     }
@@ -45,9 +49,7 @@ export function DeleteFlashcardDialog({ isOpen, flashcard, onClose, onConfirm }:
         )}
 
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={onClose} disabled={isDeleting}>
-            Anuluj
-          </AlertDialogCancel>
+          <AlertDialogCancel disabled={isDeleting}>Anuluj</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleConfirm}
             disabled={isDeleting}

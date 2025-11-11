@@ -86,11 +86,8 @@ export function CreateEditFlashcardDialog({
     [validateFront, validateBack]
   );
 
-  // Check if form is valid
-  const isFormValid =
-    !formErrors.front && !formErrors.back && formData.front.trim().length > 0 && formData.back.trim().length > 0;
-
-  const isSubmitDisabled = !isFormValid || isSubmitting;
+  // Only disable submit button during submission, not for validation
+  const isSubmitDisabled = isSubmitting;
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
@@ -134,7 +131,7 @@ export function CreateEditFlashcardDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} noValidate>
           <div className="space-y-4 py-4">
             {submitError && (
               <Alert variant="destructive">
