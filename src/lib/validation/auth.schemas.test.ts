@@ -379,18 +379,17 @@ describe("integracja - porównanie schematów auth", () => {
     expect(registerResult2.success).toBe(true);
   });
 
-  it("wszystkie schematy używają tych samych komunikatów błędów email", () => {
+  it("wszystkie schematy odrzucają pusty email", () => {
     const schemas = [
-      { name: "login", schema: loginSchema, data: { email: "", password: "password" } },
+      { schema: loginSchema, data: { email: "", password: "password" } },
       {
-        name: "register",
         schema: registerSchema,
         data: { email: "", password: "password123", confirmPassword: "password123" },
       },
-      { name: "reset", schema: resetPasswordSchema, data: { email: "" } },
+      { schema: resetPasswordSchema, data: { email: "" } },
     ];
 
-    schemas.forEach(({ name, schema, data }) => {
+    schemas.forEach(({ schema, data }) => {
       expect(() => schema.parse(data)).toThrow("Email jest wymagany");
     });
   });

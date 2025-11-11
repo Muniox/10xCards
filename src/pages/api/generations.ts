@@ -43,7 +43,7 @@ export async function POST(context: APIContext): Promise<Response> {
     let body: unknown;
     try {
       body = await context.request.json();
-    } catch (error) {
+    } catch {
       return errorResponse("VALIDATION_ERROR", "Invalid JSON format", 422);
     }
 
@@ -86,7 +86,6 @@ export async function POST(context: APIContext): Promise<Response> {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
-    console.error("Error in POST /api/generations:", error);
     return internalError("Failed to generate flashcards", {
       message: error instanceof Error ? error.message : "Unknown error",
     });
@@ -146,7 +145,6 @@ export async function GET(context: APIContext): Promise<Response> {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
-    console.error("Error in GET /api/generations:", error);
     return internalError("Failed to retrieve generations", {
       message: error instanceof Error ? error.message : "Unknown error",
     });

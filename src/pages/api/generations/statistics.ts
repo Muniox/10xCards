@@ -53,7 +53,6 @@ export async function GET(context: APIContext): Promise<Response> {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
-    console.error("Error in GET /api/generations/statistics:", error);
     return internalError("Failed to retrieve generation statistics", {
       message: error instanceof Error ? error.message : "Unknown error",
     });

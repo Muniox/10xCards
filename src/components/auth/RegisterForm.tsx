@@ -59,7 +59,7 @@ export function RegisterForm() {
       // Przekierowanie do logowania po udanej rejestracji
       // Dodaj parametr sukcesu do URL żeby pokazać komunikat na stronie logowania
       window.location.href = "/login?registered=true";
-    } catch (err) {
+    } catch {
       setError("Brak połączenia z serwerem");
     } finally {
       setIsLoading(false);
@@ -73,6 +73,7 @@ export function RegisterForm() {
     if (fieldErrors[name]) {
       setFieldErrors((prev) => {
         const newErrors = { ...prev };
+        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
         delete newErrors[name];
         return newErrors;
       });

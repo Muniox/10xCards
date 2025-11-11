@@ -38,7 +38,6 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     });
 
     if (error) {
-      console.error("[Login Error]", error);
       // Check for specific Supabase errors
       if (error.message.includes("Invalid login credentials")) {
         return unauthorizedError("Nieprawidłowy email lub hasło");
@@ -59,8 +58,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         headers: { "Content-Type": "application/json" },
       }
     );
-  } catch (err) {
-    console.error("[Login API Error]", err);
+  } catch {
     return internalError("Wystąpił błąd podczas logowania");
   }
 };

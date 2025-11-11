@@ -101,7 +101,7 @@ export function useFlashcards(userId: string, initialData: PaginatedFlashcardsRe
           throw new Error(errorData.error?.message || "Failed to create flashcard");
         }
 
-        const newFlashcard: FlashcardDTO = await response.json();
+        await response.json();
 
         // Reload first page to show new flashcard
         await loadFlashcards(1);

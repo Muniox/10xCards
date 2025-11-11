@@ -298,7 +298,7 @@ describe("CreateEditFlashcardDialog", () => {
 
     it("should disable form during submission", async () => {
       const user = userEvent.setup();
-      let resolveSubmit: () => void;
+      let resolveSubmit: (() => void) | undefined;
       const submitPromise = new Promise<void>((resolve) => {
         resolveSubmit = resolve;
       });
@@ -320,7 +320,9 @@ describe("CreateEditFlashcardDialog", () => {
       expect(backInput).toBeDisabled();
 
       // Clean up
-      resolveSubmit!();
+      if (resolveSubmit) {
+        resolveSubmit();
+      }
       await submitPromise;
     });
 

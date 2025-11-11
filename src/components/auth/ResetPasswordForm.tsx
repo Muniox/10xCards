@@ -68,7 +68,6 @@ export function ResetPasswordForm() {
     setTimeout(() => {
       setIsLoading(false);
       setSuccess(true);
-      console.log("Reset password attempt:", validation.data);
     }, 1000);
   };
 
@@ -79,6 +78,7 @@ export function ResetPasswordForm() {
     if (fieldErrors[name]) {
       setFieldErrors((prev) => {
         const newErrors = { ...prev };
+        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
         delete newErrors[name];
         return newErrors;
       });

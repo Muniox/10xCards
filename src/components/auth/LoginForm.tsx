@@ -73,8 +73,7 @@ export function LoginForm() {
       // Full page reload ensures middleware runs auth.getUser() and sets locals.user
       // Cookies are automatically set by Supabase SSR via setAll()
       window.location.href = "/app/dashboard";
-    } catch (err) {
-      console.error("[Login Error]", err);
+    } catch {
       setError("Brak połączenia z serwerem");
     } finally {
       setIsLoading(false);
@@ -88,6 +87,7 @@ export function LoginForm() {
     if (fieldErrors[name]) {
       setFieldErrors((prev) => {
         const newErrors = { ...prev };
+        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
         delete newErrors[name];
         return newErrors;
       });

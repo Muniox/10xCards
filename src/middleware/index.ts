@@ -36,7 +36,6 @@ export const onRequest = defineMiddleware(async ({ locals, cookies, url, request
   if (user) {
     // User email should always exist for authenticated users
     if (!user.email) {
-      console.error("[Middleware] Authenticated user without email:", user.id);
       return redirect("/login");
     }
 

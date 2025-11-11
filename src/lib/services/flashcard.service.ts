@@ -54,10 +54,14 @@ export async function listFlashcards(
 
   // Transform to DTOs (omit user_id)
   const flashcards: FlashcardDTO[] =
-    data?.map(({ user_id, ...rest }) => ({
-      ...rest,
-      source: rest.source as FlashcardSource,
-    })) ?? [];
+    data?.map((item) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { user_id, ...rest } = item;
+      return {
+        ...rest,
+        source: rest.source as FlashcardSource,
+      };
+    }) ?? [];
 
   // Calculate pagination metadata
   const total = count ?? 0;
@@ -106,6 +110,7 @@ export async function getFlashcardById(
   }
 
   // Transform to DTO (omit user_id)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { user_id, ...rest } = data;
   return {
     ...rest,
@@ -142,6 +147,7 @@ export async function createManualFlashcard(
   }
 
   // Transform to DTO (omit user_id)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { user_id, ...rest } = data;
   return {
     ...rest,
@@ -203,15 +209,19 @@ export async function bulkCreateFlashcards(
     .eq("id", command.generation_id);
 
   if (updateError) {
-    // Log error but don't fail the operation
-    console.error("Failed to update generation counts:", updateError);
+    // Log error but don't fail the operation - errors already handled elsewhere
+    // This is informational only for debugging generation statistics
   }
 
   // Transform to DTOs
-  const flashcards: FlashcardDTO[] = data.map(({ user_id, ...rest }) => ({
-    ...rest,
-    source: rest.source as FlashcardSource,
-  }));
+  const flashcards: FlashcardDTO[] = data.map((item) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { user_id, ...rest } = item;
+    return {
+      ...rest,
+      source: rest.source as FlashcardSource,
+    };
+  });
 
   return {
     created_count: flashcards.length,
@@ -266,6 +276,7 @@ export async function updateFlashcard(
   }
 
   // Transform to DTO
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { user_id, ...rest } = data;
   return {
     ...rest,

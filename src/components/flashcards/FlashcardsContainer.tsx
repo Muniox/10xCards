@@ -66,20 +66,15 @@ export function FlashcardsContainer({ initialData, userId }: FlashcardsContainer
    */
   const handleCreateEditSubmit = useCallback(
     async (data: FlashcardFormData) => {
-      try {
-        if (dialogMode === "create") {
-          await createFlashcard(data);
-          toast.success("Fiszka została utworzona");
-        } else if (editingFlashcard) {
-          await updateFlashcard(editingFlashcard.id, data);
-          toast.success("Fiszka została zaktualizowana");
-        }
-        setIsCreateEditDialogOpen(false);
-        setEditingFlashcard(null);
-      } catch (error) {
-        // Error is already set in the hook and will be displayed in the dialog
-        throw error;
+      if (dialogMode === "create") {
+        await createFlashcard(data);
+        toast.success("Fiszka została utworzona");
+      } else if (editingFlashcard) {
+        await updateFlashcard(editingFlashcard.id, data);
+        toast.success("Fiszka została zaktualizowana");
       }
+      setIsCreateEditDialogOpen(false);
+      setEditingFlashcard(null);
     },
     [dialogMode, editingFlashcard, createFlashcard, updateFlashcard]
   );
@@ -95,7 +90,7 @@ export function FlashcardsContainer({ initialData, userId }: FlashcardsContainer
       toast.success("Fiszka została usunięta");
       setIsDeleteDialogOpen(false);
       setDeletingFlashcard(null);
-    } catch (error) {
+    } catch {
       toast.error("Nie udało się usunąć fiszki");
       setIsDeleteDialogOpen(false);
       setDeletingFlashcard(null);
@@ -109,7 +104,7 @@ export function FlashcardsContainer({ initialData, userId }: FlashcardsContainer
     async (page: number) => {
       try {
         await loadFlashcards(page);
-      } catch (error) {
+      } catch {
         toast.error("Nie udało się załadować fiszek");
       }
     },

@@ -130,7 +130,7 @@ describe("DeleteFlashcardDialog", () => {
   describe("Loading State", () => {
     it("should show loading text during deletion", async () => {
       const user = userEvent.setup();
-      let resolveConfirm: () => void;
+      let resolveConfirm: (() => void) | undefined;
       const confirmPromise = new Promise<void>((resolve) => {
         resolveConfirm = resolve;
       });
@@ -151,13 +151,15 @@ describe("DeleteFlashcardDialog", () => {
       expect(screen.getByText(/usuwanie\.\.\./i)).toBeInTheDocument();
 
       // Clean up
-      resolveConfirm!();
+      if (resolveConfirm) {
+        resolveConfirm();
+      }
       await confirmPromise;
     });
 
     it("should disable buttons during deletion", async () => {
       const user = userEvent.setup();
-      let resolveConfirm: () => void;
+      let resolveConfirm: (() => void) | undefined;
       const confirmPromise = new Promise<void>((resolve) => {
         resolveConfirm = resolve;
       });
@@ -181,7 +183,9 @@ describe("DeleteFlashcardDialog", () => {
       expect(cancelButton).toBeDisabled();
 
       // Clean up
-      resolveConfirm!();
+      if (resolveConfirm) {
+        resolveConfirm();
+      }
       await confirmPromise;
     });
   });
