@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { formatNumber, formatPercentage, formatDuration } from "@/lib/utils/format";
+import { formatNumber, formatDuration } from "@/lib/utils/format";
 import type { StatisticCardProps } from "./types";
 
 /**
@@ -33,7 +33,9 @@ export function StatisticCard({ label, value, description, icon, format = "numbe
   const formattedValue = useMemo(() => {
     switch (format) {
       case "percentage":
-        return formatPercentage(Number(value), 0);
+        // Values from API are already percentages (0-100), not decimals (0-1)
+        // So we format directly without multiplying by 100
+        return `${Math.round(Number(value))}%`;
 
       case "duration":
         return formatDuration(Number(value));

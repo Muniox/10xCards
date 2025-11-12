@@ -27,7 +27,6 @@ export function UserMenu({ userEmail }: UserMenuProps) {
       });
 
       if (!response.ok) {
-        console.error("Logout failed");
         alert("Nie udało się wylogować. Spróbuj ponownie.");
         setIsLoggingOut(false);
         return;
@@ -35,8 +34,7 @@ export function UserMenu({ userEmail }: UserMenuProps) {
 
       // Sukces - przekierowanie do strony głównej
       window.location.href = "/";
-    } catch (err) {
-      console.error("[Logout Error]", err);
+    } catch {
       alert("Brak połączenia z serwerem");
       setIsLoggingOut(false);
     }

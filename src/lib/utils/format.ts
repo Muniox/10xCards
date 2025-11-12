@@ -39,7 +39,7 @@ export function formatNumber(value: number, options?: FormatOptions): string {
  * formatPercentage(0.75) // "75%"
  * formatPercentage(0.7532, 1) // "75,3%"
  */
-export function formatPercentage(decimal: number, decimals: number = 0): string {
+export function formatPercentage(decimal: number, decimals = 0): string {
   const percentage = decimal * 100;
 
   if (decimals === 0) {

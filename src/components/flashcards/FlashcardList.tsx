@@ -7,13 +7,7 @@ import type { FlashcardListProps } from "@/types/flashcards-view.types";
  * Component responsible for rendering the list of flashcards or empty state
  * Handles loading state with skeleton loaders
  */
-export function FlashcardList({
-  flashcards,
-  onEdit,
-  onDelete,
-  onCreateClick,
-  isLoading,
-}: FlashcardListProps) {
+export function FlashcardList({ flashcards, onEdit, onDelete, onCreateClick, isLoading }: FlashcardListProps) {
   // Show skeleton loaders while loading
   if (isLoading) {
     return (

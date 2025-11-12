@@ -182,7 +182,8 @@ export async function generateFlashcards(
       .eq("id", generation.id);
 
     if (updateError) {
-      console.error("Failed to update generation record:", updateError);
+      // Error updating generation record - non-critical
+      // The generation was successful, we just couldn't save the statistics
     }
 
     // Return result
@@ -212,7 +213,8 @@ export async function generateFlashcards(
       })
       .then(({ error: logError }) => {
         if (logError) {
-          console.error("Failed to log generation error:", logError);
+          // Silently fail - error logging is not critical
+          // The main error will still be thrown below
         }
       });
 
@@ -251,7 +253,12 @@ export async function listGenerations(
   }
 
   // Transform to DTOs (omit user_id, source_text_hash, updated_at)
-  const generations: GenerationDTO[] = data?.map(({ user_id, source_text_hash, updated_at, ...rest }) => rest) ?? [];
+  const generations: GenerationDTO[] =
+    data?.map((item) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { user_id, source_text_hash, updated_at, ...rest } = item;
+      return rest;
+    }) ?? [];
 
   // Calculate pagination metadata
   const total = count ?? 0;
@@ -342,9 +349,9 @@ export async function getGenerationStatistics(
 
   const mostUsedModel = Object.entries(modelCounts).sort(([, a], [, b]) => b - a)[0]?.[0] || "";
 
-  // Calculate rates
-  const acceptanceRate = totalGenerated > 0 ? totalAccepted / totalGenerated : 0;
-  const uneditedAcceptanceRate = totalGenerated > 0 ? totalAcceptedUnedited / totalGenerated : 0;
+  // Calculate rates as percentages (0-100)
+  const acceptanceRate = totalGenerated > 0 ? (totalAccepted / totalGenerated) * 100 : 0;
+  const uneditedAcceptanceRate = totalGenerated > 0 ? (totalAcceptedUnedited / totalGenerated) * 100 : 0;
 
   return {
     total_generations: totalGenerations,

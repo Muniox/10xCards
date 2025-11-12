@@ -44,7 +44,7 @@ export async function POST(context: APIContext): Promise<Response> {
     let body: unknown;
     try {
       body = await context.request.json();
-    } catch (error) {
+    } catch {
       return errorResponse("VALIDATION_ERROR", "Invalid JSON format", 422);
     }
 
@@ -79,7 +79,6 @@ export async function POST(context: APIContext): Promise<Response> {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
-    console.error("Error in POST /api/flashcards/bulk:", error);
     return internalError("Failed to bulk create flashcards", {
       message: error instanceof Error ? error.message : "Unknown error",
     });

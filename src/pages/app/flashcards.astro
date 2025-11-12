@@ -29,8 +29,7 @@ try {
       limit: FLASHCARD_LIMITS.PAGE_SIZE_DEFAULT,
     }
   );
-} catch (error) {
-  console.error("Error fetching flashcards:", error);
+} catch {
   // Return empty data on error - component will handle error state
   initialData = {
     data: [],

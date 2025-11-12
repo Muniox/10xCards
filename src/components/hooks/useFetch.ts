@@ -12,6 +12,7 @@ interface UseFetchState<T> {
 /**
  * Opcje dla hooka useFetch
  */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface UseFetchOptions extends RequestInit {
   // Dodatkowe opcje w przyszłości
 }

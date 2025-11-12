@@ -24,10 +24,7 @@ interface UseFlashcardsReturn {
  * Custom hook for managing flashcards state and API interactions
  * Handles CRUD operations, pagination, and optimistic UI updates
  */
-export function useFlashcards(
-  userId: string,
-  initialData: PaginatedFlashcardsResponse
-): UseFlashcardsReturn {
+export function useFlashcards(userId: string, initialData: PaginatedFlashcardsResponse): UseFlashcardsReturn {
   const [flashcards, setFlashcards] = useState<FlashcardDTO[]>(initialData.data);
   const [pagination, setPagination] = useState<PaginationMeta>(initialData.pagination);
   const [isLoading, setIsLoading] = useState(false);
@@ -104,7 +101,7 @@ export function useFlashcards(
           throw new Error(errorData.error?.message || "Failed to create flashcard");
         }
 
-        const newFlashcard: FlashcardDTO = await response.json();
+        await response.json();
 
         // Reload first page to show new flashcard
         await loadFlashcards(1);
@@ -150,9 +147,7 @@ export function useFlashcards(
         const updatedFlashcard: FlashcardDTO = await response.json();
 
         // Update flashcard in current list
-        setFlashcards((prev) =>
-          prev.map((fc) => (fc.id === updatedFlashcard.id ? updatedFlashcard : fc))
-        );
+        setFlashcards((prev) => prev.map((fc) => (fc.id === updatedFlashcard.id ? updatedFlashcard : fc)));
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : "Unknown error occurred";
         setError(errorMessage);

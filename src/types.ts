@@ -168,7 +168,13 @@ export interface GenerationStatisticsDTO {
  */
 export interface ErrorResponse {
   error: {
-    code: "VALIDATION_ERROR" | "NOT_FOUND" | "UNAUTHORIZED" | "RATE_LIMIT_ERROR" | "AI_SERVICE_ERROR" | "INTERNAL_ERROR";
+    code:
+      | "VALIDATION_ERROR"
+      | "NOT_FOUND"
+      | "UNAUTHORIZED"
+      | "RATE_LIMIT_ERROR"
+      | "AI_SERVICE_ERROR"
+      | "INTERNAL_ERROR";
     message: string;
     details?: Record<string, unknown>;
   };

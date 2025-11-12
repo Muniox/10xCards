@@ -25,7 +25,7 @@ export interface OpenRouterConfig {
  * Message in a conversation
  */
 export interface Message {
-  role: 'system' | 'user' | 'assistant';
+  role: "system" | "user" | "assistant";
   content: string;
 }
 
@@ -33,7 +33,7 @@ export interface Message {
  * JSON Schema definition (simplified version)
  */
 export interface JSONSchema {
-  type: 'object' | 'array' | 'string' | 'number' | 'boolean' | 'null';
+  type: "object" | "array" | "string" | "number" | "boolean" | "null";
   properties?: Record<string, JSONSchema>;
   items?: JSONSchema;
   required?: string[];
@@ -53,7 +53,7 @@ export interface JSONSchema {
  * Response format configuration for structured JSON responses
  */
 export interface ResponseFormat {
-  type: 'json_schema';
+  type: "json_schema";
   json_schema: {
     name: string;
     strict: boolean;
@@ -100,7 +100,7 @@ export interface CompletionResponse<T = string> {
     totalTokens: number;
   };
   /** Reason why the completion finished */
-  finishReason: 'stop' | 'length' | 'content_filter' | 'tool_calls';
+  finishReason: "stop" | "length" | "content_filter" | "tool_calls";
   /** Raw response for advanced use cases */
   raw: unknown;
 }
@@ -108,7 +108,7 @@ export interface CompletionResponse<T = string> {
 /**
  * Request for schema-based completion
  */
-export interface SchemaCompletionRequest extends Omit<CompletionRequest, 'responseFormat'> {
+export interface SchemaCompletionRequest extends Omit<CompletionRequest, "responseFormat"> {
   /** JSON Schema for the expected response */
   schema: JSONSchema;
   /** Name for the schema (snake_case, a-z, A-Z, 0-9, underscores) */

@@ -29,8 +29,8 @@ export const paginationSchema = z.object({
  * Flashcard content validation (front and back text)
  */
 export const flashcardContentSchema = z.object({
-  front: z.string().min(1, "Front text is required").max(200, "Front text must be 200 characters or less"),
-  back: z.string().min(1, "Back text is required").max(500, "Back text must be 500 characters or less"),
+  front: z.string().min(1, "Przód fiszki jest wymagany").max(200, "Maksymalnie 200 znaków"),
+  back: z.string().min(1, "Tył fiszki jest wymagany").max(500, "Maksymalnie 500 znaków"),
 });
 
 /**

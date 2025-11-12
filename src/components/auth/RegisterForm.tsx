@@ -59,7 +59,7 @@ export function RegisterForm() {
       // Przekierowanie do logowania po udanej rejestracji
       // Dodaj parametr sukcesu do URL żeby pokazać komunikat na stronie logowania
       window.location.href = "/login?registered=true";
-    } catch (err) {
+    } catch {
       setError("Brak połączenia z serwerem");
     } finally {
       setIsLoading(false);
@@ -73,6 +73,7 @@ export function RegisterForm() {
     if (fieldErrors[name]) {
       setFieldErrors((prev) => {
         const newErrors = { ...prev };
+        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
         delete newErrors[name];
         return newErrors;
       });
@@ -91,7 +92,7 @@ export function RegisterForm() {
           </Alert>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
@@ -105,9 +106,7 @@ export function RegisterForm() {
               autoComplete="email"
               aria-invalid={!!fieldErrors.email}
             />
-            {fieldErrors.email && (
-              <p className="text-sm text-red-600">{fieldErrors.email}</p>
-            )}
+            {fieldErrors.email && <p className="text-sm text-red-600">{fieldErrors.email}</p>}
           </div>
 
           <div className="space-y-2">
@@ -123,9 +122,7 @@ export function RegisterForm() {
               autoComplete="new-password"
               aria-invalid={!!fieldErrors.password}
             />
-            {fieldErrors.password && (
-              <p className="text-sm text-red-600">{fieldErrors.password}</p>
-            )}
+            {fieldErrors.password && <p className="text-sm text-red-600">{fieldErrors.password}</p>}
           </div>
 
           <div className="space-y-2">
@@ -141,9 +138,7 @@ export function RegisterForm() {
               autoComplete="new-password"
               aria-invalid={!!fieldErrors.confirmPassword}
             />
-            {fieldErrors.confirmPassword && (
-              <p className="text-sm text-red-600">{fieldErrors.confirmPassword}</p>
-            )}
+            {fieldErrors.confirmPassword && <p className="text-sm text-red-600">{fieldErrors.confirmPassword}</p>}
           </div>
 
           <Button type="submit" className="w-full" disabled={isLoading}>

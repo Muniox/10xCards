@@ -42,8 +42,6 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     });
 
     if (error) {
-      console.error("[Register Error]", error);
-
       // Check for specific Supabase errors
       if (error.message.includes("User already registered")) {
         return new Response(
@@ -89,8 +87,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         headers: { "Content-Type": "application/json" },
       }
     );
-  } catch (err) {
-    console.error("[Register API Error]", err);
+  } catch {
     return internalError("Wystąpił błąd podczas rejestracji");
   }
 };

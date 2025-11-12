@@ -59,7 +59,6 @@ export async function GET(context: APIContext): Promise<Response> {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
-    console.error("Error in GET /api/flashcards/:id:", error);
     return internalError("Failed to retrieve flashcard", {
       message: error instanceof Error ? error.message : "Unknown error",
     });
@@ -108,7 +107,7 @@ export async function PATCH(context: APIContext): Promise<Response> {
     let body: unknown;
     try {
       body = await context.request.json();
-    } catch (error) {
+    } catch {
       return validationError("Invalid JSON format", undefined);
     }
 
@@ -139,7 +138,6 @@ export async function PATCH(context: APIContext): Promise<Response> {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
-    console.error("Error in PATCH /api/flashcards/:id:", error);
     return internalError("Failed to update flashcard", {
       message: error instanceof Error ? error.message : "Unknown error",
     });
@@ -191,7 +189,6 @@ export async function DELETE(context: APIContext): Promise<Response> {
       status: 204,
     });
   } catch (error) {
-    console.error("Error in DELETE /api/flashcards/:id:", error);
     return internalError("Failed to delete flashcard", {
       message: error instanceof Error ? error.message : "Unknown error",
     });
