@@ -4,15 +4,17 @@ on:
   # Manual workflow trigger
   workflow_dispatch:
 
-  # Trigger on push to main branch
+  # Trigger on push to main and develop branches
   push:
     branches:
       - main
+      - develop
 
-  # Trigger on pull request to main branch
+  # Trigger on pull request to main and develop branches
   pull_request:
     branches:
       - main
+      - develop
 
 # Cancel in-progress workflows for the same PR/branch to save CI resources
 concurrency:
@@ -149,9 +151,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # Install only Chromium browser as per project guidelines
+      # Install all Playwright browsers (chromium, firefox, webkit)
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install --with-deps
 
       # Download build artifacts from the build job
       - name: Download build artifacts
