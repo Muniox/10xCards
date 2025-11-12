@@ -24,10 +24,22 @@ export async function fillForm(page: Page, fields: Record<string, string>) {
  */
 export async function login(page: Page, email: string, password: string) {
   await page.goto("/login");
+  await page.waitForLoadState("networkidle");
+
   await page.fill('input[name="email"]', email);
   await page.fill('input[name="password"]', password);
   await page.click('button[type="submit"]');
-  await page.waitForURL("/app/dashboard");
+
+  // Wait for navigation to dashboard with increased timeout
+  try {
+    await page.waitForURL("/app/dashboard", { timeout: 10000 });
+    await page.waitForLoadState("networkidle");
+  } catch {
+    const currentUrl = page.url();
+    // eslint-disable-next-line no-console
+    console.error(`❌ Login failed - expected /app/dashboard but got: ${currentUrl}`);
+    throw new Error(`Login failed - redirected to ${currentUrl} instead of /app/dashboard`);
+  }
 }
 
 /**
