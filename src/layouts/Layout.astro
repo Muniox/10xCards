@@ -1,24 +1,57 @@
 ---
 import "../styles/global.css";
+import { Toaster } from "../components/ui/sonner";
+import LandingNavigation from "../components/landing/LandingNavigation.astro";
+import Footer from "../components/landing/Footer.astro";
 
 interface Props {
   title?: string;
+  description?: string;
+  /**
+   * Type of navigation to display
+   * - 'landing': Show LandingNavigation (default for public pages)
+   * - 'none': Don't show navigation (used by AppLayout which has its own Navigation)
+   */
+  navigation?: "landing" | "none";
+  /**
+   * Whether to show footer
+   * Default: true
+   */
+  showFooter?: boolean;
 }
 
-const { title = "10x Astro Starter" } = Astro.props;
+const {
+  title = "10xCards - Twórz fiszki 10x szybciej z AI",
+  description = "Automatycznie generuj wysokiej jakości fiszki edukacyjne z dowolnego tekstu dzięki AI. Ucz się efektywniej z inteligentnym systemem powtórek opartym na spaced repetition.",
+  navigation = "landing",
+  showFooter = true,
+} = Astro.props;
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="pl" class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={description} />
+    <meta name="keywords" content="fiszki, AI, nauka, spaced repetition, edukacja, uczenie się, flashcards, powtórki" />
+
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+
     <title>{title}</title>
   </head>
-  <body>
-    <slot />
+  <body class="flex flex-col min-h-screen">
+    {navigation === "landing" && <LandingNavigation />}
+    <div class="flex-1 flex flex-col">
+      <slot />
+    </div>
+    {showFooter && <Footer />}
+    <Toaster client:load />
   </body>
 </html>
 
@@ -27,6 +60,5 @@ const { title = "10x Astro Starter" } = Astro.props;
   body {
     margin: 0;
     width: 100%;
-    height: 100%;
   }
 </style>

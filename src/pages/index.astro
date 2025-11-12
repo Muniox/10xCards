@@ -1,8 +1,12 @@
 ---
-import Welcome from "../components/Welcome.astro";
 import Layout from "../layouts/Layout.astro";
+import Hero from "../components/landing/Hero.astro";
+import Features from "../components/landing/Features.astro";
 ---
 
-<Layout>
-  <Welcome />
+<Layout title="10xCards - Twórz fiszki 10x szybciej z AI">
+  <main>
+    <Hero />
+    <Features />
+  </main>
 </Layout>

@@ -1,0 +1,74 @@
+---
+// Navigation component - poziomy pasek nawigacyjny
+// Zawiera linki do głównych sekcji aplikacji
+import { UserMenu } from "./auth/UserMenu";
+import { MobileNavigation } from "./MobileNavigation";
+
+interface Props {
+  currentPath?: string;
+}
+
+const { currentPath = "" } = Astro.props;
+
+// Get user from middleware (locals.user is set by auth middleware)
+const { user } = Astro.locals;
+const userEmail = user?.email || "";
+
+// Funkcja do sprawdzania czy link jest aktywny
+const isActive = (path: string) => currentPath.startsWith(path);
+
+// Definicja linków nawigacyjnych
+const navLinks = [
+  { href: "/app/dashboard", label: "Dashboard", icon: "📊" },
+  { href: "/app/generate", label: "Generator", icon: "✨" },
+  { href: "/app/flashcards", label: "Moje Fiszki", icon: "📚" },
+  { href: "/app/study", label: "Sesja Nauki", icon: "🎯" },
+];
+
+// Prepare links for mobile navigation with active state
+const navLinksWithActive = navLinks.map((link) => ({
+  ...link,
+  isActive: isActive(link.href),
+}));
+---
+
+<nav class="bg-white border-b border-gray-200">
+  <div class="container mx-auto px-4">
+    <div class="flex items-center justify-between h-16">
+      <!-- Logo / Brand -->
+      <div class="flex items-center">
+        <a
+          href="/"
+          class="flex items-center gap-2 text-xl font-bold text-gray-900 transition-colors hover:text-gray-700"
+        >
+          <span class="text-2xl">🎴</span>
+          <span>10xCards</span>
+        </a>
+      </div>
+
+      <!-- Navigation Links - Desktop -->
+      <div class="hidden md:flex items-center space-x-1">
+        {
+          navLinks.map((link) => (
+            <a
+              href={link.href}
+              class={`flex items-center space-x-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${isActive(link.href) ? "bg-gray-100 text-gray-900" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"}`}
+              aria-current={isActive(link.href) ? "page" : undefined}
+            >
+              <span>{link.icon}</span>
+              <span>{link.label}</span>
+            </a>
+          ))
+        }
+      </div>
+
+      <!-- User Menu - Desktop -->
+      <div class="hidden md:flex items-center space-x-4">
+        <UserMenu client:load userEmail={userEmail} />
+      </div>
+
+      <!-- Mobile Navigation -->
+      <MobileNavigation client:load navLinks={navLinksWithActive} userEmail={userEmail} />
+    </div>
+  </div>
+</nav>

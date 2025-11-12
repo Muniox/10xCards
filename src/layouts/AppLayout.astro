@@ -1,0 +1,38 @@
+---
+import Layout from "./Layout.astro";
+import Navigation from "../components/Navigation.astro";
+import Footer from "../components/landing/Footer.astro";
+
+interface Props {
+  title?: string;
+}
+
+const { title = "10xCards" } = Astro.props;
+
+// Verify user authentication (user is set by middleware in context.locals)
+const { user } = Astro.locals;
+
+// Redirect to login if user is not authenticated
+// This is a guard for AppLayout - ensures all pages using this layout require auth
+if (!user) {
+  return Astro.redirect("/login");
+}
+
+// Pobierz aktualną ścieżkę dla aktywnych linków w nawigacji
+const currentPath = Astro.url.pathname;
+---
+
+<Layout title={title} navigation="none" showFooter={false}>
+  <div class="min-h-screen flex flex-col">
+    <!-- Navigation Bar -->
+    <Navigation currentPath={currentPath} />
+
+    <!-- Main Content -->
+    <main class="flex-1 bg-gray-50">
+      <slot />
+    </main>
+
+    <!-- Footer -->
+    <Footer />
+  </div>
+</Layout>

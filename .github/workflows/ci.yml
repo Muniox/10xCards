@@ -1,0 +1,214 @@
+name: CI/CD Pipeline
+
+on:
+  # Manual workflow trigger
+  workflow_dispatch:
+
+  # Trigger on push to main and develop branches
+  push:
+    branches:
+      - main
+      - develop
+
+  # Trigger on pull request to main and develop branches
+  pull_request:
+    branches:
+      - main
+      - develop
+
+# Cancel in-progress workflows for the same PR/branch to save CI resources
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ============================================
+  # Job 1: Linting
+  # Runs ESLint to check code quality and style
+  # ============================================
+  lint:
+    name: Lint Code
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+
+  # ============================================
+  # Job 2: Unit Tests
+  # Runs Vitest unit tests with coverage report
+  # ============================================
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Vitest unit tests
+        run: npm run test -- --run
+
+      - name: Generate coverage report
+        run: npm run test:coverage -- --run
+        continue-on-error: true
+
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 7
+
+  # ============================================
+  # Job 3: Production Build
+  # Builds the application for production
+  # Depends on: lint, unit-tests
+  # ============================================
+  build:
+    name: Production Build
+    runs-on: ubuntu-latest
+    needs: [lint, unit-tests]
+
+    env:
+      # Environment variables required for build
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build for production
+        run: npm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-artifacts
+          path: dist/
+          retention-days: 7
+
+  # ============================================
+  # Job 4: E2E Tests
+  # Runs Playwright E2E tests
+  # Depends on: build (reuses built artifacts)
+  # ============================================
+  e2e-tests:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    needs: [build]
+
+    env:
+      CI: true
+      # Environment variables required for E2E tests
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Install all Playwright browsers (chromium, firefox, webkit)
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      # Download build artifacts from the build job
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-artifacts
+          path: dist/
+
+      - name: Run Playwright E2E tests
+        run: npm run test:e2e
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: test-results/
+          retention-days: 7
+
+  # ============================================
+  # Job 5: CI Pipeline Summary
+  # Reports overall pipeline status
+  # Depends on: all previous jobs
+  # ============================================
+  ci-summary:
+    name: CI Pipeline Summary
+    runs-on: ubuntu-latest
+    needs: [lint, unit-tests, build, e2e-tests]
+    if: always()
+
+    steps:
+      - name: Check all job statuses
+        run: |
+          echo "=== CI Pipeline Summary ==="
+          echo "Lint: ${{ needs.lint.result }}"
+          echo "Unit Tests: ${{ needs.unit-tests.result }}"
+          echo "Build: ${{ needs.build.result }}"
+          echo "E2E Tests: ${{ needs.e2e-tests.result }}"
+          echo "=========================="
+
+          # Exit with error if any job failed
+          if [ "${{ needs.lint.result }}" != "success" ] || \
+             [ "${{ needs.unit-tests.result }}" != "success" ] || \
+             [ "${{ needs.build.result }}" != "success" ] || \
+             [ "${{ needs.e2e-tests.result }}" != "success" ]; then
+            echo "CI Pipeline FAILED"
+            exit 1
+          else
+            echo "CI Pipeline PASSED"
+          fi

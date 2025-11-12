@@ -1,0 +1,49 @@
+---
+import AppLayout from "@/layouts/AppLayout.astro";
+import { FlashcardsContainer } from "@/components/flashcards/FlashcardsContainer";
+import { listFlashcards } from "@/lib/services/flashcard.service";
+import { Toaster } from "@/components/ui/sonner";
+import type { SupabaseClient } from "@/db/supabase.client";
+import { FLASHCARD_LIMITS } from "@/lib/constants/flashcards";
+
+// Get user from middleware
+const user = Astro.locals.user;
+
+// Redirect to login if not authenticated (double check, AppLayout also handles this)
+if (!user) {
+  return Astro.redirect("/login?redirect=/app/flashcards");
+}
+
+// Get Supabase client from context
+const supabase = Astro.locals.supabase as SupabaseClient;
+
+// Fetch initial flashcards data (SSR)
+let initialData;
+try {
+  initialData = await listFlashcards(
+    supabase,
+    user.id,
+    {}, // No filters by default
+    {
+      page: 1,
+      limit: FLASHCARD_LIMITS.PAGE_SIZE_DEFAULT,
+    }
+  );
+} catch {
+  // Return empty data on error - component will handle error state
+  initialData = {
+    data: [],
+    pagination: {
+      page: 1,
+      limit: FLASHCARD_LIMITS.PAGE_SIZE_DEFAULT,
+      total: 0,
+      total_pages: 0,
+    },
+  };
+}
+---
+
+<AppLayout title="Moje Fiszki - 10xCards">
+  <FlashcardsContainer client:load initialData={initialData} userId={user.id} />
+  <Toaster client:load />
+</AppLayout>
