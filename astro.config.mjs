@@ -1,5 +1,5 @@
 // @ts-check
-import { defineConfig } from "astro/config";
+import { defineConfig, envField } from "astro/config";
 
 import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
@@ -17,4 +17,29 @@ export default defineConfig({
     plugins: [tailwindcss()],
   },
   adapter: cloudflare(),
+  env: {
+    schema: {
+      // Supabase configuration - secret server variables
+      SUPABASE_URL: envField.string({
+        context: "server",
+        access: "secret",
+      }),
+      SUPABASE_KEY: envField.string({
+        context: "server",
+        access: "secret",
+      }),
+      // OpenRouter API configuration - secret server variable
+      OPENROUTER_API_KEY: envField.string({
+        context: "server",
+        access: "secret",
+      }),
+      // Site URL - public server variable (used in HTTP Referer headers)
+      SITE: envField.string({
+        context: "server",
+        access: "public",
+        optional: true,
+        default: "https://10xcards.app",
+      }),
+    },
+  },
 });

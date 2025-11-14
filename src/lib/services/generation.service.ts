@@ -8,6 +8,7 @@ import type {
 } from "../../types";
 import { OpenRouterService, OpenRouterError } from "./openrouter";
 import type { JSONSchema } from "./openrouter";
+import { OPENROUTER_API_KEY, SITE } from "astro:env/server";
 
 /**
  * Singleton instance of OpenRouter service
@@ -21,14 +22,14 @@ let openRouterService: OpenRouterService | null = null;
  */
 function getOpenRouterService(): OpenRouterService {
   if (!openRouterService) {
-    const apiKey = import.meta.env.OPENROUTER_API_KEY;
+    const apiKey = OPENROUTER_API_KEY;
     if (!apiKey) {
       throw new Error("OPENROUTER_API_KEY is not configured");
     }
 
     openRouterService = new OpenRouterService({
       apiKey,
-      httpReferer: import.meta.env.SITE || "https://10xcards.app",
+      httpReferer: SITE,
       appTitle: "10xCards",
     });
   }
