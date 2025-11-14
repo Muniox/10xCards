@@ -103,11 +103,13 @@ Creating high-quality flashcards manually is time-consuming and often discourage
    ```env
    # Supabase Configuration
    SUPABASE_URL=your_supabase_project_url
-   SUPABASE_ANON_KEY=your_supabase_anon_key
+   SUPABASE_KEY=your_supabase_anon_key
 
    # Openrouter AI Configuration
    OPENROUTER_API_KEY=your_openrouter_api_key
    ```
+
+   > **Note**: These environment variables are managed using Astro's `astro:env` module for secure handling in production environments (e.g., Cloudflare). The schema is defined in `astro.config.mjs`.
 
 5. **Start the development server**:
 

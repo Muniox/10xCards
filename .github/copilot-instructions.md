@@ -89,7 +89,11 @@ When modifying the directory structure, always update this section.
 - Use image optimization with the Astro Image integration
 - Implement hybrid rendering with server-side rendering where needed
 - Use Astro.cookies for server-side cookie management
-- Leverage import.meta.env for environment variables
+- Use `astro:env/server` for environment variables in server-side code (middleware, API routes, Astro components)
+- Use `astro:env/client` for environment variables that need to be accessible on the client-side
+- Define all environment variables in `astro.config.mjs` using `envField` from `astro/config`
+- Use `import.meta.env.PROD` for build-time environment checks (not defined in astro:env schema)
+- Never use `process.env` in Astro context - use `astro:env` instead for Cloudflare compatibility
 
 ### Guidelines for React
 
